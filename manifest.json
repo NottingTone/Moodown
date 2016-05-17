@@ -1,0 +1,36 @@
+{
+	"manifest_version": 2,
+	"name": "Moodown",
+	"version": "0.1.0",
+	"description": "A batch downloader for moodle.nottingham.ac.uk",
+	"icons": {
+		"32": "icon32.png"
+	},
+	"page_action": {
+		"default_icon": {
+			"32": "icon32.png"
+		},
+		"default_title": "Moodown",
+		"default_popup": "popup.html"
+	},
+	"background": {
+		"scripts": [
+			"background.js"
+		],
+		"persistent": false
+	},
+	"content_scripts": [{
+		"matches": [
+			"http://moodle.nottingham.ac.uk/course/view.php?id=*",
+			"http://moodle.nottingham.ac.uk/mod/folder/view.php?id=*"
+		],
+		"js": [
+			"content.js"
+		]
+	}],
+	"permissions": [
+		"tabs",
+		"downloads",
+		"http://moodle.nottingham.ac.uk/*"
+	]
+}
