@@ -91,7 +91,7 @@ function getCheckBoxElement(file) {
 function getIconElement(file) {
 	let icon = document.createElement('div');
 	icon.classList.add('icon');
-	icon.style.backgroundImage = 'url(' + file.icon + ')';
+	icon.style.backgroundImage = `url(${file.icon})`;
 	return icon;
 }
 
@@ -111,13 +111,12 @@ function getNameElement(file) {
 function getDirnumElement(dir) {
 	let span = document.createElement('span');
 	span.classList.add('dirnum');
-	span.textContent = '(0/' + (dir.files ? dir.files.length : '0+') + ')';
+	span.textContent = `(0/${dir.files ? dir.files.length : '0+'})`;
 	return span;
 }
 
 function onSwitch (e) {
 	this.classList.toggle('open');
-	console.log(this.parentNode);
 	this.parentNode.nextSibling.classList.toggle('open');
 }
 
@@ -170,7 +169,6 @@ function update() {
 		filetypes[filetype].number = 0;
 	}
 	updateFileTree(data);
-	console.log(filetypes);
 	updateFiletypes();
 }
 
@@ -179,7 +177,6 @@ function updateFileTree(file) {
 		if (pattern.test(file.name)) {
 			file.el.classList.remove('hidden');
 			if (file.el.querySelector('.header>.check').checked) {
-				console.log(file);
 				++filetypes[file.fileType].number;
 				return [1, 1];
 			} else {
@@ -207,7 +204,7 @@ function updateFileTree(file) {
 				file.el.classList.add('hidden');
 			}
 			let dirnumEl = file.el.querySelector('.header>.indent>.dirnum');
-			dirnumEl.textContent = '(' + dirnum[0] + '/' + (dirnum[2] ? dirnum[1] + '+' : dirnum[1]) + ')';
+			dirnumEl.textContent = `(${dirnum[0]}/${dirnum[2] ? dirnum[1] + '+' : dirnum[1]})`;
 			let check = file.el.querySelector('.header>.check');
 			check.checked = dirnum[0] && dirnum[0] === dirnum[1];
 			check.indeterminate = dirnum[0] && dirnum[0] < dirnum[1];
