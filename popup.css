@@ -1,0 +1,174 @@
+* {
+	outline: none;
+}
+
+body {
+	width: 800px;
+	height: 500px;
+	margin: 0;
+	padding: 15px;
+	box-sizing: border-box;
+}
+
+#title {
+	margin: 0 0 20px;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	overflow: hidden;
+}
+
+#body::after {
+	content: '';
+	display: block;
+	clear: both;
+}
+
+#files {
+	width: 70%;
+	float: left;
+	font-size: 17px;
+}
+
+#options {
+	width: auto;
+	overflow: hidden;
+}
+
+#filter-type {
+	-webkit-appearance: menulist-button;
+	width: 100%;
+	height: 30px;
+	float: left;
+	margin-bottom: 5px;
+	font-size: 14px;
+}
+
+#filter-pattern {
+	width: 100%;
+	height: 30px;
+	box-sizing: border-box;
+	border: 1px solid #bbb;
+	border-radius: 5px;
+	font-size: 14px;
+	padding: 0 6px;
+}
+
+#summary {
+	height: 320px;
+	overflow: scroll;
+}
+
+#summary-table {
+	width: 100%;
+	font-size: 17px;
+	text-align: center;
+	margin: 20px 0;
+}
+
+#summary-table>thead>tr>th:first-child {
+	width: 20px;
+}
+
+#summary-table>thead>tr>th:nth-child(2) {
+	width: 50%;
+}
+
+#action {
+	text-align: center;
+}
+
+#go {
+	border: none;
+	width: 120px;
+	height: 40px;
+	font-size: 17px;
+	background: #2196f3;
+	color: #fff;
+	cursor: pointer;
+	transition: background .3s ease-in-out;
+}
+
+#go:hover {
+	background: #42a5f5;
+}
+
+#go:active {
+	background: #1e88e5;
+}
+
+li.dir, li.file {
+	list-style: none;
+}
+
+li.file {
+	padding-left: 13px;
+}
+
+li.dir {
+	position: relative;
+}
+
+.switch {
+	width: 0;
+	height: 0;
+	border-top: 5px solid transparent;
+	border-bottom: 5px solid transparent;
+	border-left: 8px solid #6e6e6e;
+	cursor: pointer;
+	margin-right: 5px;
+	transform: translateY(40%);
+}
+
+.switch.open {
+	transform: translateY(40%) rotate(90deg);
+}
+
+li>.header {
+	display: flex;
+}
+
+ul.files {
+	display: none;
+}
+
+ul.files.open {
+	display: block;
+}
+
+.icon {
+	flex: 0 0 18px;
+	background-repeat: no-repeat;
+	background-size: 18px;
+	margin: 0 5px;
+}
+
+.check {
+	flex: 0 0 18px;
+}
+
+.dirnum {
+	margin-left: 5px;
+	font-size: 12px;
+	color: #777;
+}
+
+#files ul {
+	padding-left: 16px;
+}
+
+.hidden,#loading {
+	display: none;
+}
+
+#loading.show {
+	position: fixed;
+	left: 0;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	display: block;
+}
+
+#filetypes>:last-child {
+	font-weight: 800;
+}

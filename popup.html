@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>Moodown</title>
+	<link rel="stylesheet" href="popup.css">
+</head>
+<body>
+	<h1 id="title"></h1>
+	<div id="body">
+		<div id="files"></div>
+		<div id="options">
+			<div id="filter">
+				<select id="filter-type">
+					<option value="wildcard">Wildcard</option>
+					<option value="string">String</option>
+					<option value="regexp">RegExp</option>
+				</select>
+				<input id="filter-pattern">
+			</div>
+			<div id="summary">
+				<table id="summary-table">
+					<thead>
+						<tr>
+							<th></th>
+							<th>Filetype</th>
+							<th>Number</th>
+						</tr>
+					</thead>
+					<tbody id="filetypes">
+					</tbody>
+				</table>
+			</div>
+			<div id="action">
+				<button id="go">Go!</button>
+			</div>
+		</div>
+	</div>
+	<div id="loading">
+	</div>
+	<script src="popup.js"></script>
+</body>
+</html>
