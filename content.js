@@ -44,8 +44,14 @@ function getIconByActivity (activity) {
 }
 
 function getLabelByActivity (activity) {
-	var strong = activity.querySelector('strong');
-	return strong ? strong.textContent : null;
+	let acceptableTags = ['strong', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'];
+	for (let tagName of acceptableTags) {
+		let tag = activity.querySelector(tagName);
+		if (tag) {
+			return tag.textContent;
+		}
+	}
+	return null;
 }
 
 function getNameByActivity (activity) {
