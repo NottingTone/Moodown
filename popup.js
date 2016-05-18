@@ -252,6 +252,105 @@ function initFileTypes() {
 	}
 }
 
+function safeFilename(filename) {
+	return filename.replace(/[^a-zA-Z0-9_\-\.]+/g, '_');
+}
+
+function chromeDownload(url, path, first) {
+	let filename = url.slice(url.lastIndexOf('/') + 1);
+	filename = decodeURIComponent(filename);
+	chrome.downloads.download({
+		url,
+		filename: path + filename
+	});
+	if (first.first) {
+		first.first = false;
+		chrome.downloads.showDefaultFolder();
+	}
+}
+
+function downloadFile(id, path, first) {
+	return new Promise((resolve, reject) => {
+		let url = `http://moodle.nottingham.ac.uk/mod/resource/view.php?id=${id}`;
+		fetch(url, {
+			method: 'HEAD',
+			credentials: 'include',
+		}).then((resp) => {
+			if (resp.url.startsWith('http://moodle.nottingham.ac.uk/pluginfile.php')) {
+				chromeDownload(resp.url, path, first);
+				resolve();
+			} else if (resp.url === url) {
+				fetch(url, { credentials: 'include' })
+				.then((resp) => {
+					return resp.text();
+				}).then((text) => {
+					let match = text.match(/<div class="resourceworkaround">Click <a href="(.*?)"/);
+					if (match) {
+						chromeDownload(match[1], path, first);
+						resolve();
+					} else {
+						reject();
+					}
+				}).catch(reject);
+			} else {
+				reject();
+			}
+		}).catch(reject);
+	});
+}
+
+function download(file, path, extendPath = false, first) {
+	if (file.type === 'file') {
+		let fileCheck = file.el.querySelector('.header>.check');
+		let filetypeCheck = filetypes[file.fileType].el.parentNode.querySelector('td>input[type=checkbox]');
+		if (fileCheck.checked && filetypeCheck.checked) {
+			downloadFile(file.id, path, first);
+		}
+	} else {
+		if (file.files) {
+			let sum = 0;
+			for (let f of file.files) {
+				let checkbox = f.el.querySelector('.header>.check');
+				if (checkbox.checked || checkbox.indeterminate) {
+					++sum;
+				}
+			}
+			for (let f of file.files) {
+				let newPath = path;
+				if (extendPath) {
+					newPath += safeFilename(file.name) + '/';
+				}
+				download(f, newPath, sum > 1, first);
+			}
+		}
+	}
+}
+
+function go() {
+	let first = {first: true};
+	download(data, `Moodown_${formatTime()}/`, false, first);
+}
+
+function pad(num, digits) {
+	let s = num.toString();
+	while (s.length < digits) {
+		s = '0' + s;
+	}
+	return s;
+}
+
+function formatTime() {
+	let dt = new Date();
+	let yr = dt.getFullYear();
+	let mo = pad(dt.getMonth() + 1, 2);
+	let date = pad(dt.getDate(), 2);
+	let hr = pad(dt.getHours(), 2);
+	let min = pad(dt.getMinutes(), 2);
+	let sec = pad(dt.getSeconds(), 2);
+	let ms = pad(dt.getMilliseconds(), 3)
+	return `${yr}${mo}${date}${hr}${min}${sec}${ms}`;
+}
+
 chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
 	chrome.tabs.sendMessage(tabs[0].id, "requestData", function (response) {
 
