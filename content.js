@@ -1,18 +1,30 @@
 (function(){
 
-let iconTypes = {
+const iconTypes = {
 	'http://moodle.nottingham.ac.uk/theme/image.php/nottingham_arts/core/1457712810/f/pdf-24': 'PDF',
 	'http://moodle.nottingham.ac.uk/theme/image.php/nottingham_arts/core/1457712810/f/document-24': 'Word',
 	'http://moodle.nottingham.ac.uk/theme/image.php/nottingham_arts/core/1457712810/f/powerpoint-24': 'PPT',
 	'http://moodle.nottingham.ac.uk/theme/image.php/nottingham_arts/core/1457712810/f/calc-24': 'Excel'
 };
 
-function createDirObj (name, icon) {
+const acceptableTags = ['strong', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'];
+
+function labelLevel (label) {
+	for (let i = 0; i < acceptableTags.length; ++i) {
+		if (label.querySelector(acceptableTags[i])) {
+			return i + 1;
+		}
+	}
+	return -1;
+}
+
+function createDirObj (name, level) {
 	return {
 		type: 'dir',
 		name,
-		icon: icon || 'http://moodle.nottingham.ac.uk/theme/image.php/nottingham_arts/folder/1457712810/icon',
+		icon: 'http://moodle.nottingham.ac.uk/theme/image.php/nottingham_arts/folder/1457712810/icon',
 		files: [],
+		level,
 	}
 }
 
@@ -44,7 +56,6 @@ function getIconByActivity (activity) {
 }
 
 function getLabelByActivity (activity) {
-	let acceptableTags = ['strong', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'];
 	for (let tagName of acceptableTags) {
 		let tag = activity.querySelector(tagName);
 		if (tag) {
@@ -65,6 +76,16 @@ function getNameByActivity (activity) {
 	return name;
 }
 
+function cleanData (data) {
+	delete data.level;
+	delete data.parent;
+	if (data.files) {
+		for (let file of data.files) {
+			cleanData(file);
+		}
+	}
+}
+
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 	if (request === 'requestData') {
 
@@ -77,7 +98,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 		for (let section of sections) {
 			let content = section.getElementsByClassName('content')[0];
 			let name = content.getElementsByClassName('sectionname')[0].textContent;
-			let dir = createDirObj(name);
+			let dir = createDirObj(name, 0);
 			let currentDir = dir;
 			let activities = content.getElementsByClassName('activity');
 			for (let activity of activities) {
@@ -88,8 +109,14 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 						// not a catagory label
 						continue;
 					}
-					currentDir = createDirObj(name);
-					dir.files.push(currentDir);
+					let newDir = createDirObj(name, labelLevel(activity));
+					console.log(name, newDir.level, currentDir.name, currentDir.level);
+					while (currentDir.level >= newDir.level && currentDir !== dir) {
+						currentDir = currentDir.parent;
+					}
+					newDir.parent = currentDir;
+					currentDir.files.push(newDir);
+					currentDir = newDir;
 				} else {
 					if (!activity.querySelector('.activityinstance>a')) {
 						// link unavailable
@@ -110,11 +137,12 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 					modtype_url
 					modtype_page
 					modtype_quiz
+					modtype_book
 				*/
 			}
 			data.files.push(dir);
 		}
-
+		cleanData(data);
 		sendResponse(data);
 	}
 });
