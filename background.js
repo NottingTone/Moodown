@@ -3,10 +3,10 @@ const urlPrefixes = [
 	'http://moodle.nottingham.ac.uk/mod/folder/view.php?id='
 ];
 
-chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
+chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
 	if (tab.url) {
-		for (var idx in urlPrefixes) {
-			if (tab.url.slice(0, urlPrefixes[idx].length) === urlPrefixes[idx]) {
+		for (let urlPrefix of urlPrefixes) {
+			if (tab.url.startsWith(urlPrefix)) {
 				chrome.pageAction.show(tabId);
 				break;
 			}

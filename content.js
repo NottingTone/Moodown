@@ -1,6 +1,6 @@
 (function(){
 
-var iconTypes = {
+let iconTypes = {
 	'http://moodle.nottingham.ac.uk/theme/image.php/nottingham_arts/core/1457712810/f/pdf-24': 'PDF',
 	'http://moodle.nottingham.ac.uk/theme/image.php/nottingham_arts/core/1457712810/f/document-24': 'Word',
 	'http://moodle.nottingham.ac.uk/theme/image.php/nottingham_arts/core/1457712810/f/powerpoint-24': 'PPT',
@@ -10,9 +10,9 @@ var iconTypes = {
 function createDirObj (name, icon) {
 	return {
 		type: 'dir',
-		name: name,
+		name,
 		icon: icon || 'http://moodle.nottingham.ac.uk/theme/image.php/nottingham_arts/folder/1457712810/icon',
-		files: []
+		files: [],
 	}
 }
 
@@ -20,18 +20,18 @@ function createFileObj (id, name, icon) {
 	return {
 		type: 'file',
 		fileType: iconTypes[icon] || 'unknown',
-		id: id,
-		name: name,
-		icon: icon
+		id,
+		name,
+		icon,
 	};
 }
 
 function createFolderObj (id, name, icon) {
 	return {
 		type: 'folder',
-		id: id,
-		name: name,
-		icon: icon || 'http://moodle.nottingham.ac.uk/theme/image.php/nottingham_arts/folder/1457712810/icon'
+		id,
+		name,
+		icon: icon || 'http://moodle.nottingham.ac.uk/theme/image.php/nottingham_arts/folder/1457712810/icon',
 	}
 }
 
@@ -49,36 +49,35 @@ function getLabelByActivity (activity) {
 }
 
 function getNameByActivity (activity) {
-	var name = '';
-	var instancename = activity.querySelector('.activityinstance>a>.instancename').childNodes;
-	for (var i in instancename) {
-		if (instancename[i].nodeType === 3) {
-			name += instancename[i].textContent;
+	let name = '';
+	let instancename = activity.querySelector('.activityinstance>a>.instancename').childNodes;
+	for (let node of instancename) {
+		if (node.nodeType === 3) {
+			name += node.textContent;
 		}
 	}
 	return name;
 }
 
-chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 	if (request === 'requestData') {
 
-		var module = document.getElementById('course-header').textContent;
-		var data = {
+		let module = document.getElementById('course-header').textContent;
+		let data = {
 			module: module,
-			files: []
+			files: [],
 		};
-		var sections = document.querySelectorAll('.section.main:not(.hidden)');
-		for (var i = 0; i < sections.length; ++i) {
-			var section = sections[i].getElementsByClassName('content')[0];
-			var name = section.getElementsByClassName('sectionname')[0].textContent;
-			var dir = createDirObj(name);
-			var currentDir = dir;
-			var activities = section.getElementsByClassName('activity');
-			for (var j = 0; j < activities.length; ++j) {
-				var activity = activities[j];
-				var id = getIdByActivity(activity);
+		let sections = document.querySelectorAll('.section.main:not(.hidden)');
+		for (let section of sections) {
+			let content = section.getElementsByClassName('content')[0];
+			let name = content.getElementsByClassName('sectionname')[0].textContent;
+			let dir = createDirObj(name);
+			let currentDir = dir;
+			let activities = content.getElementsByClassName('activity');
+			for (let activity of activities) {
+				let id = getIdByActivity(activity);
 				if (activity.classList.contains('modtype_label')) {
-					var name = getLabelByActivity(activity);
+					let name = getLabelByActivity(activity);
 					if (name === null) {
 						// not a catagory label
 						continue;
@@ -90,13 +89,13 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 						// link unavailable
 						continue;
 					}
-					var icon = getIconByActivity(activity);
-					var name = getNameByActivity(activity);
+					let icon = getIconByActivity(activity);
+					let name = getNameByActivity(activity);
 					if (activity.classList.contains('modtype_resource')) {
-						var file = createFileObj(id, name, icon);
+						let file = createFileObj(id, name, icon);
 						currentDir.files.push(file);
 					} else if (activity.classList.contains('modtype_folder')) {
-						var folder = createFolderObj(id, name, icon);
+						let folder = createFolderObj(id, name, icon);
 						currentDir.files.push(folder);
 					}
 				}
