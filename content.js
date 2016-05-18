@@ -44,7 +44,8 @@ function getIconByActivity (activity) {
 }
 
 function getLabelByActivity (activity) {
-	return activity.textContent;
+	var strong = activity.querySelector('strong');
+	return strong ? strong.textContent : null;
 }
 
 function getNameByActivity (activity) {
@@ -75,16 +76,20 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 			var activities = section.getElementsByClassName('activity');
 			for (var j = 0; j < activities.length; ++j) {
 				var activity = activities[j];
-				if (!activity.querySelector('.activityinstance>a')) {
-					// link unavailable
-					continue;
-				}
 				var id = getIdByActivity(activity);
 				if (activity.classList.contains('modtype_label')) {
 					var name = getLabelByActivity(activity);
+					if (name === null) {
+						// not a catagory label
+						continue;
+					}
 					currentDir = createDirObj(name);
 					dir.files.push(currentDir);
 				} else {
+					if (!activity.querySelector('.activityinstance>a')) {
+						// link unavailable
+						continue;
+					}
 					var icon = getIconByActivity(activity);
 					var name = getNameByActivity(activity);
 					if (activity.classList.contains('modtype_resource')) {
