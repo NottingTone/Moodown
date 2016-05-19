@@ -256,20 +256,16 @@ function safeFilename(filename) {
 	return filename.replace(/[^a-zA-Z0-9_\-\.]+/g, '_');
 }
 
-function chromeDownload(url, path, first) {
+function chromeDownload(url, path) {
 	let filename = url.slice(url.lastIndexOf('/') + 1);
 	filename = decodeURIComponent(filename);
 	chrome.downloads.download({
 		url,
 		filename: path + filename
 	});
-	if (first.first) {
-		first.first = false;
-		chrome.downloads.showDefaultFolder();
-	}
 }
 
-function downloadFile(id, path, first) {
+function downloadFile(id, path) {
 	return new Promise((resolve, reject) => {
 		let url = `http://moodle.nottingham.ac.uk/mod/resource/view.php?id=${id}`;
 		fetch(url, {
@@ -277,7 +273,7 @@ function downloadFile(id, path, first) {
 			credentials: 'include',
 		}).then((resp) => {
 			if (resp.url.startsWith('http://moodle.nottingham.ac.uk/pluginfile.php')) {
-				chromeDownload(resp.url, path, first);
+				chromeDownload(resp.url, path);
 				resolve();
 			} else if (resp.url === url) {
 				fetch(url, { credentials: 'include' })
@@ -286,7 +282,7 @@ function downloadFile(id, path, first) {
 				}).then((text) => {
 					let match = text.match(/<div class="resourceworkaround">Click <a href="(.*?)"/);
 					if (match) {
-						chromeDownload(match[1], path, first);
+						chromeDownload(match[1], path);
 						resolve();
 					} else {
 						reject();
@@ -299,12 +295,36 @@ function downloadFile(id, path, first) {
 	});
 }
 
-function download(file, path, extendPath = false, first) {
+function* downloadFilesInList(filelist) {
+	for (let job of filelist) {
+		yield downloadFile(job.id, job.path);
+	}
+}
+
+function runner(g, cb) {
+
+	function next(data) {
+		let ret = g.next(data);
+		if (ret.done) {
+			cb && cb();
+			return ret.value;
+		} else {
+			ret.value.then(next);
+		}
+	}
+
+	next();
+}
+
+function prepareFilelist(file, path, extendPath = false, filelist) {
 	if (file.type === 'file') {
 		let fileCheck = file.el.querySelector('.header>.check');
 		let filetypeCheck = filetypes[file.fileType].el.parentNode.querySelector('td>input[type=checkbox]');
 		if (fileCheck.checked && filetypeCheck.checked) {
-			downloadFile(file.id, path, first);
+			filelist.push({
+				id: file.id,
+				path: path,
+			});
 		}
 	} else {
 		if (file.files) {
@@ -320,15 +340,20 @@ function download(file, path, extendPath = false, first) {
 				if (extendPath) {
 					newPath += safeFilename(file.name) + '/';
 				}
-				download(f, newPath, sum > 1, first);
+				prepareFilelist(f, newPath, sum > 1, filelist);
 			}
 		}
 	}
 }
 
 function go() {
-	let first = {first: true};
-	download(data, `Moodown_${formatTime()}/`, false, first);
+	document.getElementById('go').disabled = true;
+	let filelist = [];
+	prepareFilelist(data, `Moodown_${formatTime()}/`, false, filelist);
+	runner(downloadFilesInList(filelist), () => {
+		chrome.downloads.showDefaultFolder();
+		document.getElementById('go').disabled = false;
+	});
 }
 
 function pad(num, digits) {
