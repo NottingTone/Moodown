@@ -257,69 +257,90 @@ function safeFilename(filename) {
 }
 
 function chromeDownload(url, path) {
-	let filename = url.slice(url.lastIndexOf('/') + 1);
-	filename = decodeURIComponent(filename);
-	chrome.downloads.download({
-		url,
-		filename: path + filename
+	return new Promise((resolve, reject) => {
+		let filename = url.slice(url.lastIndexOf('/') + 1);
+		filename = decodeURIComponent(filename);
+		chrome.downloads.download({
+			url,
+			filename: path + filename
+		}, (downloadId) => {
+			if (downloadId) {
+				resolve(downloadId);
+			} else {
+				reject();
+			}
+		});
+	});
+}
+
+function cancelDownload(downloadId) {
+	return new Promise((resolve, reject) => {
+		chrome.downloads.cancel(downloadId, () => {
+			resolve();
+		});
+	});
+}
+
+function removeFile(downloadId) {
+	return new Promise((resolve, reject) => {
+		chrome.downloads.removeFile(downloadId, () => {
+			resolve();
+		});
 	});
 }
 
 function downloadFile(id, path) {
-	return new Promise((resolve, reject) => {
+	return runner((function*() {
 		let url = `http://moodle.nottingham.ac.uk/mod/resource/view.php?id=${id}`;
-		fetch(url, {
+		let resp = yield fetch(url, {
 			method: 'HEAD',
 			credentials: 'include',
-		}).then((resp) => {
-			if (resp.url.startsWith('http://moodle.nottingham.ac.uk/pluginfile.php')) {
-				chromeDownload(resp.url, path);
-				resolve();
-			} else if (resp.url === url) {
-				fetch(url, { credentials: 'include' })
-				.then((resp) => {
-					return resp.text();
-				}).then((text) => {
-					let match = text.match(/<div class="resourceworkaround">Click <a href="(.*?)"/);
-					if (match) {
-						chromeDownload(match[1], path);
-						resolve();
-					} else {
-						reject();
-					}
-				}).catch(reject);
+		});
+		if (resp.url.startsWith('http://moodle.nottingham.ac.uk/pluginfile.php')) {
+			yield chromeDownload(resp.url, path);
+		} else if (resp.url === url) {
+			resp = yield fetch(url, { credentials: 'include' });
+			let text = yield resp.text();
+			let match = text.match(/<div class="resourceworkaround">Click <a href="(.*?)"/);
+			if (match) {
+				yield chromeDownload(match[1], path);
 			} else {
-				reject();
+				throw Error('Unknown page content');
 			}
-		}).catch(reject);
-	});
-}
-
-function* downloadFilesInList(filelist) {
-	let button = document.getElementById('go');
-	button.disabled = true;
-	for (let idx in filelist) {
-		button.textContent = `${idx}/${filelist.length}`;
-		yield downloadFile(filelist[idx].id, filelist[idx].path);
-	}
-	button.disabled = false;
-	chrome.downloads.showDefaultFolder();
-	button.textContent = 'Go!';
-}
-
-function runner(g, cb) {
-
-	function next(data) {
-		let ret = g.next(data);
-		if (ret.done) {
-			cb && cb();
-			return ret.value;
 		} else {
-			ret.value.then(next);
+			throw Error('Unknown redirection')
 		}
-	}
+	})());
+}
 
-	next();
+function downloadFilesInList(filelist) {
+	return runner((function*() {
+		let button = document.getElementById('go');
+		button.disabled = true;
+		button.textContent = `0/${filelist.length}`;
+		for (let idx in filelist) {
+			yield downloadFile(filelist[idx].id, filelist[idx].path);
+			button.textContent = `${+idx+1}/${filelist.length}`;
+		}
+		chrome.downloads.showDefaultFolder();
+		button.disabled = false;
+		button.textContent = 'Go!';
+	})());
+}
+
+function runner(g) {
+	return new Promise((resolve ,reject) => {
+		function next(data) {
+			let ret = g.next(data);
+			if (ret.done) {
+				resolve(ret.value);
+			} else {
+				window.a = ret;
+				ret.value.then(next, reject);
+			}
+		}
+		next();
+	});
 }
 
 function prepareFilelist(file, path, extendPath = false, filelist) {
@@ -354,8 +375,9 @@ function prepareFilelist(file, path, extendPath = false, filelist) {
 
 function go() {
 	let filelist = [];
-	prepareFilelist(data, `Moodown_${formatTime()}/`, false, filelist);
-	runner(downloadFilesInList(filelist));
+	let dirname = `Moodown_${formatTime()}/`;
+	prepareFilelist(data, dirname, false, filelist);
+	downloadFilesInList(filelist);
 }
 
 function pad(num, digits) {
