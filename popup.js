@@ -296,9 +296,15 @@ function downloadFile(id, path) {
 }
 
 function* downloadFilesInList(filelist) {
-	for (let job of filelist) {
-		yield downloadFile(job.id, job.path);
+	let button = document.getElementById('go');
+	button.disabled = true;
+	for (let idx in filelist) {
+		button.textContent = `${idx}/${filelist.length}`;
+		yield downloadFile(filelist[idx].id, filelist[idx].path);
 	}
+	button.disabled = false;
+	chrome.downloads.showDefaultFolder();
+	button.textContent = 'Go!';
 }
 
 function runner(g, cb) {
@@ -347,13 +353,9 @@ function prepareFilelist(file, path, extendPath = false, filelist) {
 }
 
 function go() {
-	document.getElementById('go').disabled = true;
 	let filelist = [];
 	prepareFilelist(data, `Moodown_${formatTime()}/`, false, filelist);
-	runner(downloadFilesInList(filelist), () => {
-		chrome.downloads.showDefaultFolder();
-		document.getElementById('go').disabled = false;
-	});
+	runner(downloadFilesInList(filelist));
 }
 
 function pad(num, digits) {
