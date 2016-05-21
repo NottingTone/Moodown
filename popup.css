@@ -100,6 +100,7 @@ body {
 
 #go[disabled] {
 	background: #888;
+	cursor: default;
 }
 
 li.dir, li.file {
