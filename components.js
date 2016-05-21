@@ -46,6 +46,10 @@ function formatTime() {
 	return `${yr}${mo}${date}${hr}${min}${sec}${ms}`;
 }
 
+function safeFilename(filename) {
+	return filename.replace(/[^a-zA-Z0-9_\-\.]+/g, '_');
+}
+
 function prepareFilelist(file, path, extendPath = false, filelist) {
 	if (file.type === 'file') {
 		let fileCheck = file.el.querySelector('.header>.check');

@@ -17,10 +17,6 @@ function runner(g) {
 	});
 }
 
-function safeFilename(filename) {
-	return filename.replace(/[^a-zA-Z0-9_\-\.]+/g, '_');
-}
-
 function chromeDownload(url, path) {
 	return new Promise((resolve, reject) => {
 		let filename = url.slice(url.lastIndexOf('/') + 1);
