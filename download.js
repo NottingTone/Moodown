@@ -5,6 +5,7 @@
 function chromeDownload(url, path) {
 	return new Promise((resolve, reject) => {
 		let filename = url.slice(url.lastIndexOf('/') + 1);
+		filename = filename.slice(0, filename.indexOf('?'));
 		filename = decodeURIComponent(filename);
 		chrome.downloads.download({
 			url,
