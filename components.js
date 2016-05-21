@@ -140,7 +140,7 @@ function updateFileTree(file, pattern) {
 			dirnumEl.textContent = `(${dirnum[0]}/${dirnum[2] ? dirnum[1] + '+' : dirnum[1]})`;
 			let check = file.el.querySelector('.header>.check');
 			check.checked = dirnum[0] && dirnum[0] === dirnum[1];
-			check.indeterminate = dirnum[0] && dirnum[0] < dirnum[1];
+			check.indeterminate = dirnum[0] && (dirnum[0] < dirnum[1] || dirnum[2]);
 			check.disabled = !dirnum[1];
 		}
 		return dirnum;
@@ -275,7 +275,7 @@ function onSwitch (e) {
 			folder.files = folderWithData.files;
 			let filelistEl = getFileListElement(folder.files);
 			this.parentNode.parentNode.appendChild(filelistEl);
-			this.nextSibling.disabled = false;
+			updateFileTree(data, pattern);
 			loading.classList.add('hidden');
 		}
 		this.parentNode.nextSibling.classList.toggle('open');
