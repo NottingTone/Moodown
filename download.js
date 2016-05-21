@@ -2,21 +2,6 @@
 
 (function(){
 
-function runner(g) {
-	return new Promise((resolve ,reject) => {
-		function next(data) {
-			let ret = g.next(data);
-			if (ret.done) {
-				resolve(ret.value);
-			} else {
-				window.a = ret;
-				ret.value.then(next, reject);
-			}
-		}
-		next();
-	});
-}
-
 function chromeDownload(url, path) {
 	return new Promise((resolve, reject) => {
 		let filename = url.slice(url.lastIndexOf('/') + 1);

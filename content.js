@@ -94,7 +94,8 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
 		let module = document.getElementById('course-header').textContent;
 		let data = {
-			module: module,
+			type: 'module',
+			name: module,
 			files: [],
 		};
 		let sections = document.querySelectorAll('.section.main:not(.hidden)');

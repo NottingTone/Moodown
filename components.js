@@ -16,7 +16,7 @@ let filetypes = {
 
 window.initComponents = function(_data) {
 	data = _data;
-	document.getElementById('title').textContent = data.module;
+	document.getElementById('title').textContent = data.name;
 	initFileTypes();
 	let fileListEl = getFileListElement(data.files);
 	fileListEl.classList.add('open');
