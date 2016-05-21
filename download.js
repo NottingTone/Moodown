@@ -49,7 +49,11 @@ window.downloadFilesInList = function(filelist) {
 		button.disabled = true;
 		button.textContent = `0/${filelist.length}`;
 		for (let idx in filelist) {
-			yield downloadFile(filelist[idx].id, filelist[idx].path);
+			if (filelist[idx].realUrl) {
+				yield chromeDownload(filelist[idx].realUrl, filelist[idx].path);
+			} else {
+				yield downloadFile(filelist[idx].id, filelist[idx].path);
+			}
 			button.textContent = `${+idx+1}/${filelist.length}`;
 		}
 		chrome.downloads.showDefaultFolder();

@@ -58,6 +58,7 @@ function prepareFilelist(file, path, extendPath = false, filelist) {
 		if (fileCheck.checked && filetypeCheck.checked) {
 			filelist.push({
 				id: file.id,
+				realUrl: file.realUrl,
 				path: path,
 			});
 		}
