@@ -25,6 +25,7 @@
 			"http://moodle.nottingham.ac.uk/mod/folder/view.php?id=*"
 		],
 		"js": [
+			"polyfill.js",
 			"content.js"
 		]
 	}],
