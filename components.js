@@ -9,6 +9,7 @@ let filetypes = {
 	'PDF': { number: 0 },
 	'PPT': { number: 0 },
 	'Excel': { number: 0 },
+	'Calc': { number: 0 },
 	'unknown': { number: 0 },
 	'Total': { number: 0 },
 };

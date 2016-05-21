@@ -6,7 +6,8 @@ const iconTypes = {
 	'http://moodle.nottingham.ac.uk/theme/image.php/nottingham_arts/core/1457712810/f/pdf-24': 'PDF',
 	'http://moodle.nottingham.ac.uk/theme/image.php/nottingham_arts/core/1457712810/f/document-24': 'Word',
 	'http://moodle.nottingham.ac.uk/theme/image.php/nottingham_arts/core/1457712810/f/powerpoint-24': 'PPT',
-	'http://moodle.nottingham.ac.uk/theme/image.php/nottingham_arts/core/1457712810/f/calc-24': 'Excel'
+	'http://moodle.nottingham.ac.uk/theme/image.php/nottingham_arts/core/1457712810/f/spreadsheet-24': 'Excel',
+	'http://moodle.nottingham.ac.uk/theme/image.php/nottingham_arts/core/1457712810/f/calc-24': 'Calc',
 };
 
 const acceptableTags = ['strong', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'];
