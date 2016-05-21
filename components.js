@@ -246,9 +246,40 @@ function getDirnumElement(dir) {
 	return span;
 }
 
+function findFolderByElement(dir, el) {
+	if (dir.el === el) {
+		return dir;
+	} else if (dir.type === 'file') {
+		return null;
+	} else if (dir.files) {
+		for (let file of dir.files) {
+			let find = findFolderByElement(file, el);
+			if (find) {
+				return find;
+			}
+		}
+		return null;
+	} else {
+		return null;
+	};
+}
+
 function onSwitch (e) {
-	this.classList.toggle('open');
-	this.parentNode.nextSibling.classList.toggle('open');
+	return runner((function*(){
+		this.classList.toggle('open');
+		if (!this.parentNode.nextSibling) {
+			let loading = document.getElementById('loading');
+			loading.classList.remove('hidden');
+			let folder = findFolderByElement(data, this.parentNode.parentNode);
+			let folderWithData = yield getFolder(folder.id);
+			folder.files = folderWithData.files;
+			let filelistEl = getFileListElement(folder.files);
+			this.parentNode.parentNode.appendChild(filelistEl);
+			this.nextSibling.disabled = false;
+			loading.classList.add('hidden');
+		}
+		this.parentNode.nextSibling.classList.toggle('open');
+	}).call(this));
 }
 
 function onCheck (e) {
