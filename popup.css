@@ -163,7 +163,7 @@ ul.files.open {
 	padding-left: 16px;
 }
 
-.hidden,#loading {
+.hidden {
 	display: none;
 }
 
@@ -178,4 +178,40 @@ ul.files.open {
 
 #filetypes>:last-child {
 	font-weight: 800;
+}
+
+#loading {
+	position: fixed;
+	background: rgba(0,0,0,.3);
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+}
+
+#loading::before {
+	content: '';
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	border: 3px solid rgba(255,255,255,.3);
+	border-bottom-color: #fff;
+	height: 40px;
+	width: 40px;
+	border-radius: 20px;
+	animation: rotate .5s linear infinite;
+	box-sizing: border-box;
+}
+
+@keyframes rotate {
+	0% {
+		transform: translate(-50%, -50%) rotate(0);
+	}
+	50% {
+		transform: translate(-50%, -50%) rotate(180deg);
+	}
+	100% {
+		transform: translate(-50%, -50%) rotate(360deg);
+	}
 }
