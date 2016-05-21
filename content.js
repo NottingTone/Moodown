@@ -98,6 +98,10 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 		for (let section of sections) {
 			let content = section.getElementsByClassName('content')[0];
 			let name = content.getElementsByClassName('sectionname')[0].textContent;
+			let summary = getLabelByActivity(content.getElementsByClassName('summary')[0]);
+			if (summary && summary.length > 1) {
+				name = summary;
+			}
 			let dir = createDirObj(name, 0);
 			let currentDir = dir;
 			let activities = content.getElementsByClassName('activity');
@@ -110,7 +114,6 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 						continue;
 					}
 					let newDir = createDirObj(name, labelLevel(activity));
-					console.log(name, newDir.level, currentDir.name, currentDir.level);
 					while (currentDir.level >= newDir.level && currentDir !== dir) {
 						currentDir = currentDir.parent;
 					}
