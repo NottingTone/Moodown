@@ -1,3 +1,5 @@
+"use strict";
+
 (function(){
 
 	// polyfille for Chrome 50-

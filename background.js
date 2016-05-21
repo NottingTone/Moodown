@@ -1,3 +1,5 @@
+"use strict";
+
 const urlPrefixes = [
 	'http://moodle.nottingham.ac.uk/course/view.php?id=',
 	'http://moodle.nottingham.ac.uk/mod/folder/view.php?id='
