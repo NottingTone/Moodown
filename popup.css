@@ -28,7 +28,7 @@ body {
 	height: 450px;
 	float: left;
 	font-size: 17px;
-	overflow: scroll;
+	overflow-x: hidden;
 }
 
 #options {
@@ -57,7 +57,7 @@ body {
 
 #summary {
 	height: 320px;
-	overflow: scroll;
+	overflow: hidden;
 }
 
 #summary-table {
