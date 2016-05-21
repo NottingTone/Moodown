@@ -20,7 +20,6 @@ window.getFolder = function(id) {
 		let regexFile = /<a href="(http:\/\/moodle.nottingham.ac.uk\/pluginfile.php.*?)">[\s\S]*?<img.*?src="(.*?)" \/>[\s\S]*?<span class="fp-filename">(.*?)<\/span>/g;
 		let match;
 		while (match = regexFile.exec(main)) {
-			console.log(match[2]);
 			files.push({
 				type: 'file',
 				realUrl: match[1],
