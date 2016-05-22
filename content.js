@@ -71,12 +71,11 @@ function getLabelByActivity (activity) {
 function getNameByActivity (activity) {
 	let name = '';
 	let instancename = activity.querySelector('.activityinstance>a>.instancename').childNodes;
-	for (let node of instancename) {
-		if (node.nodeType === 3) {
-			name += node.textContent;
-		}
-	}
-	return name;
+	return Array.from(instancename)
+		.filter(node => node.nodeType === 3)
+		.map(node => node.textContent.trim())
+		.join('')
+		.trim();
 }
 
 function cleanData (data) {
