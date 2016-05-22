@@ -10,15 +10,42 @@ const iconTypes = {
 	'http://moodle.nottingham.ac.uk/theme/image.php/nottingham_arts/core/1457712810/f/calc-24': 'Calc',
 };
 
-const acceptableTags = ['strong', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'];
+const acceptedTags = ['H1', 'H2', 'H3', 'H4', 'H5', 'H6'];
+const rejectedTags = [];
+const criticalFontSize = 16;
 
-function labelLevel (label) {
-	for (let i = 0; i < acceptableTags.length; ++i) {
-		if (label.querySelector(acceptableTags[i])) {
-			return i + 1;
+function getFontSize (el) {
+	return parseFloat(getComputedStyle(el).fontSize);
+}
+
+function getLevelByEl (el, accepted = false) {
+	if (!el.childElementCount) {
+		let fontSize = getFontSize(el);
+		if ((acceptedTags.includes(el.tagName) || accepted || fontSize >= criticalFontSize) && el.textContent.trim()) {
+			return fontSize;
+		} else {
+			return -1;
 		}
+	} else {
+		return Math.max.apply(null,
+			Array.from(el.childNodes)
+			.filter(node => node.nodeType === 3 || !rejectedTags.includes(node.nodeName))
+			.map(node => {
+				if (node.nodeType === 3) {
+					let fontSize = getFontSize(el);
+					if ((accepted || fontSize >= criticalFontSize) && node.textContent.trim()) {
+						return fontSize;
+					} else {
+						return -1;
+					}
+				} else if (acceptedTags.includes(el.tagName)) {
+					return getLevelByEl(node, true);
+				} else {
+					return getLevelByEl(node, accepted);
+				}
+			})
+		);
 	}
-	return -1;
 }
 
 function createDirObj (name, level) {
@@ -58,14 +85,36 @@ function getIconByActivity (activity) {
 	return activity.querySelector('.activityinstance>a>.activityicon').src;
 }
 
-function getLabelByActivity (activity) {
-	for (let tagName of acceptableTags) {
-		let tag = activity.querySelector(tagName);
-		if (tag) {
-			return tag.textContent;
+function getTitleByElementAndLevel (el, level) {
+	if (!el.childElementCount) {
+		if (getFontSize(el) === level) {
+			return el.textContent.trim();
+		} else {
+			return '';
 		}
+	} else {
+		return Array.from(el.childNodes)
+			.filter(node => node.nodeType === 3 || !rejectedTags.includes(node.tagName))
+			.map(node => {
+				if (node.nodeType === 3) {
+					return getFontSize(el) === level ? node.textContent.trim() : '';
+				} else {
+					return getTitleByElementAndLevel(node, level);
+				}
+			})
+			.join('');
 	}
-	return null;
+}
+
+function getTitlByEl (el, level) {
+	if (level === undefined) {
+		level = getLevelByEl(el);
+	}
+	if (level === -1) {
+		return null;
+	} else {
+		return getTitleByElementAndLevel(el, level);
+	}
 }
 
 function getNameByActivity (activity) {
@@ -91,7 +140,7 @@ function cleanData (data) {
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 	if (request === 'requestData') {
 
-		let module = document.getElementById('course-header').textContent;
+		let module = document.getElementById('course-header').textContent.trim();
 		let data = {
 			type: 'module',
 			name: module,
@@ -100,24 +149,25 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 		let sections = document.querySelectorAll('.section.main:not(.hidden)');
 		for (let section of sections) {
 			let content = section.getElementsByClassName('content')[0];
-			let name = content.getElementsByClassName('sectionname')[0].textContent;
-			let summary = getLabelByActivity(content.getElementsByClassName('summary')[0]);
-			if (summary && summary.length > 1) {
+			let name = content.getElementsByClassName('sectionname')[0].textContent.trim();
+			let summary = getTitlByEl(content.getElementsByClassName('summary')[0]);
+			if (summary && summary.length > 1 && summary.length < 50) {
 				name = summary;
 			}
-			let dir = createDirObj(name, 0);
+			let dir = createDirObj(name, Infinity);
 			let currentDir = dir;
 			let activities = content.getElementsByClassName('activity');
 			for (let activity of activities) {
 				let id = getIdByActivity(activity);
 				if (activity.classList.contains('modtype_label')) {
-					let name = getLabelByActivity(activity);
-					if (name === null) {
+					let level = getLevelByEl(activity);
+					if (level === -1) {
 						// not a catagory label
 						continue;
 					}
-					let newDir = createDirObj(name, labelLevel(activity));
-					while (currentDir.level >= newDir.level && currentDir !== dir) {
+					let name = getTitlByEl(activity);
+					let newDir = createDirObj(name, level);
+					while (currentDir.level <= newDir.level && currentDir !== dir) {
 						currentDir = currentDir.parent;
 					}
 					newDir.parent = currentDir;
