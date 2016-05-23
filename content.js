@@ -2,17 +2,26 @@
 
 (function(){
 
-const iconTypes = {
-	'http://moodle.nottingham.ac.uk/theme/image.php/nottingham_arts/core/1457712810/f/pdf-24': 'PDF',
-	'http://moodle.nottingham.ac.uk/theme/image.php/nottingham_arts/core/1457712810/f/document-24': 'Word',
-	'http://moodle.nottingham.ac.uk/theme/image.php/nottingham_arts/core/1457712810/f/powerpoint-24': 'PPT',
-	'http://moodle.nottingham.ac.uk/theme/image.php/nottingham_arts/core/1457712810/f/spreadsheet-24': 'Excel',
-	'http://moodle.nottingham.ac.uk/theme/image.php/nottingham_arts/core/1457712810/f/calc-24': 'Calc',
-};
+const iconTypes = new Map([
+	[/1457712810\/f\/pdf-24$/, 'PDF'],
+	[/1457712810\/f\/document-24$/, 'Word'],
+	[/1457712810\/f\/powerpoint-24$/, 'PPT'],
+	[/1457712810\/f\/spreadsheet-24$/, 'Excel'],
+	[/1457712810\/f\/calc-24$/, 'Calc'],
+]);
 
 const acceptedTags = ['H1', 'H2', 'H3', 'H4', 'H5', 'H6'];
 const rejectedTags = [];
 const criticalFontSize = 16;
+
+function getFiletypeByIcon (icon) {
+	for (let [iconPattern, filetype] of iconTypes) {
+		if (iconPattern.test(icon)) {
+			return filetype;
+		}
+	}
+	return 'unknown';
+}
 
 function getFontSize (el) {
 	return parseFloat(getComputedStyle(el).fontSize);
@@ -61,7 +70,7 @@ function createDirObj (name, level) {
 function createFileObj (id, name, icon) {
 	return {
 		type: 'file',
-		fileType: iconTypes[icon] || 'unknown',
+		fileType: getFiletypeByIcon(icon),
 		id,
 		name,
 		icon,
