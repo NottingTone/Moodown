@@ -3,11 +3,11 @@
 (function(){
 
 const iconTypes = new Map([
-	[/1457712810\/f\/pdf-24$/, 'PDF'],
-	[/1457712810\/f\/document-24$/, 'Word'],
-	[/1457712810\/f\/powerpoint-24$/, 'PPT'],
-	[/1457712810\/f\/spreadsheet-24$/, 'Excel'],
-	[/1457712810\/f\/calc-24$/, 'Calc'],
+	[/\/f\/pdf-24$/, 'PDF'],
+	[/\/f\/document-24$/, 'Word'],
+	[/\/f\/powerpoint-24$/, 'PPT'],
+	[/\/f\/spreadsheet-24$/, 'Excel'],
+	[/\/f\/calc-24$/, 'Calc'],
 ]);
 
 const acceptedTags = ['H1', 'H2', 'H3', 'H4', 'H5', 'H6'];

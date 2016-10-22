@@ -2,13 +2,22 @@
 
 (function(){
 
-const iconTypes = {
-	'http://moodle.nottingham.ac.uk/theme/image.php/nottingham_arts/core/1457712810/f/pdf-24': 'PDF',
-	'http://moodle.nottingham.ac.uk/theme/image.php/nottingham_arts/core/1457712810/f/document-24': 'Word',
-	'http://moodle.nottingham.ac.uk/theme/image.php/nottingham_arts/core/1457712810/f/powerpoint-24': 'PPT',
-	'http://moodle.nottingham.ac.uk/theme/image.php/nottingham_arts/core/1457712810/f/spreadsheet-24': 'Excel',
-	'http://moodle.nottingham.ac.uk/theme/image.php/nottingham_arts/core/1457712810/f/calc-24': 'Calc',
-};
+const iconTypes = new Map([
+	[/\/f\/pdf-24$/, 'PDF'],
+	[/\/f\/document-24$/, 'Word'],
+	[/\/f\/powerpoint-24$/, 'PPT'],
+	[/\/f\/spreadsheet-24$/, 'Excel'],
+	[/\/f\/calc-24$/, 'Calc'],
+]);
+
+function getFiletypeByIcon (icon) {
+	for (let [iconPattern, filetype] of iconTypes) {
+		if (iconPattern.test(icon)) {
+			return filetype;
+		}
+	}
+	return 'unknown';
+}
 
 window.getFolder = function(id) {
 	return runner((function*() {
@@ -25,7 +34,7 @@ window.getFolder = function(id) {
 				realUrl: match[1],
 				icon: match[2],
 				name: match[3],
-				fileType: iconTypes[match[2]] || 'unknown',
+				fileType: getFiletypeByIcon(match[2]) || 'unknown',
 			});
 		}
 		return {
