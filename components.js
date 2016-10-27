@@ -48,7 +48,7 @@ function formatTime() {
 }
 
 function safeFilename(filename) {
-	return filename.replace(/[^a-zA-Z0-9_\-\.]+/g, '_');
+	return filename.replace(/[^a-zA-Z0-9_\-\.\u4e00-\u9fa5]+/g, '_');
 }
 
 function prepareFilelist(file, path, extendPath = false, filelist) {
