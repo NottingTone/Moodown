@@ -6,7 +6,7 @@ const acceptedTags = ['H1', 'H2', 'H3', 'H4', 'H5', 'H6'];
 const rejectedTags = [];
 const criticalFontSize = 16;
 
-const iconTypes = new Map([
+const ICON_TYPES = new Map([
 	[/\/f\/pdf-24$/, 'pdf'],
 	[/\/f\/document-24$/, 'doc'],
 	[/\/f\/powerpoint-24$/, 'slides'],
@@ -14,7 +14,7 @@ const iconTypes = new Map([
 	[/\/f\/calc-24$/, 'calc'],
 ]);
 
-const extensionTypes = new Map([
+const EXTENSION_TYPES = new Map([
 	['pdf', 'pdf'],
 	['doc', 'doc'],
 	['ppt', 'slides'],
@@ -27,8 +27,19 @@ const extensionTypes = new Map([
 	['gz', 'archive'],
 ]);
 
+const TYPE_ICONS = new Map([
+	['pdf', 'http://moodle.nottingham.ac.uk/theme/image.php/nottingham_science/core/1477502187/f/pdf-24'],
+	['doc', 'http://moodle.nottingham.ac.uk/theme/image.php/nottingham_science/core/1477502187/f/document-24'],
+	['slides', 'http://moodle.nottingham.ac.uk/theme/image.php/nottingham_science/core/1477502187/f/powerpoint-24'],
+	['spreadsheet', 'http://moodle.nottingham.ac.uk/theme/image.php/nottingham_science/core/1477502187/f/spreadsheet-24'],
+	['calc', 'http://moodle.nottingham.ac.uk/theme/image.php/nottingham_science/core/1477502187/f/calc-24'],
+	['archive', 'http://moodle.nottingham.ac.uk/theme/image.php/nottingham_science/core/1477502187/f/archive-24'],
+	['other', 'http://moodle.nottingham.ac.uk/theme/image.php/nottingham_science/core/1477502187/f/unknown-24'],
+	['folder', 'http://moodle.nottingham.ac.uk/theme/image.php/nottingham_arts/folder/1457712810/icon'],
+]);
+
 function getFiletypeByIcon(icon) {
-	for (const [iconPattern, filetype] of iconTypes) {
+	for (const [iconPattern, filetype] of ICON_TYPES) {
 		if (iconPattern.test(icon)) {
 			return filetype;
 		}
@@ -37,14 +48,14 @@ function getFiletypeByIcon(icon) {
 }
 
 function getFiletypeByExtension(extension) {
-	if (extensionTypes.has(extension)) {
-		return extensionTypes.get(extension);
+	if (EXTENSION_TYPES.has(extension)) {
+		return EXTENSION_TYPES.get(extension);
 	} else {
 		return 'other';
 	}
 }
 
-function getFontSize (el) {
+function getFontSize(el) {
 	if (el.nodeType === 1) {
 		return parseFloat(getComputedStyle(el).fontSize);
 	} else {
@@ -52,48 +63,62 @@ function getFontSize (el) {
 	}
 }
 
-function getLevelByEl (el, accepted = false) {
-	if (!el.childElementCount) {
-		const fontSize = getFontSize(el);
-		if ((acceptedTags.includes(el.tagName) || accepted || fontSize >= criticalFontSize) && el.textContent.trim()) {
-			return fontSize;
-		} else {
-			return -1;
+function getFontWeight(el) {
+	if (el.nodeType === 1) {
+		const weight = getComputedStyle(el).fontWeight;
+		switch (weight) {
+		case 'normal':
+			return 400;
+		case 'bold':
+			return 700;
+		default:
+			return parseInt(weight);
 		}
 	} else {
-		return Math.max.apply(null,
-			Array.from(el.childNodes)
+		return 0;
+	}
+}
+
+function getElLevel(el) {
+	return getFontSize(el) + (getFontWeight(el) - 400) / 150;
+}
+
+function getLevelByEl(el, accepted = false) {
+	if (![1, 3].includes(el.nodeType)) {
+		return -1;
+	} else if (!el.childElementCount) {
+		const level = getElLevel(el);
+		if ((acceptedTags.includes(el.tagName) || accepted || level >= criticalFontSize) && el.textContent.trim()) {
+			return [level, el.textContent.trim().replace(/\s+/g, ' ')];
+		} else {
+			return [-1];
+		}
+	} else {
+		return Array.from(el.childNodes)
 			.filter(node => node.nodeType === 3 || !rejectedTags.includes(node.nodeName))
 			.map(node => {
-				if (node.nodeType === 3) {
-					const fontSize = getFontSize(el);
-					if ((accepted || fontSize >= criticalFontSize) && node.textContent.trim()) {
-						return fontSize;
-					} else {
-						return -1;
-					}
-				} else if (acceptedTags.includes(el.tagName)) {
+				if (acceptedTags.includes(node.tagName)) {
 					return getLevelByEl(node, true);
 				} else {
 					return getLevelByEl(node, accepted);
 				}
 			})
-		);
+			.reduce((a, b) => a[0] > b[0] ? a : b, [-1]);
 	}
 }
 
-function createDirObj (name, level) {
+function createDirObj(name, level) {
 	return {
 		type: 'dir',
 		fetched: true,
 		name,
-		icon: 'http://moodle.nottingham.ac.uk/theme/image.php/nottingham_arts/folder/1457712810/icon',
+		icon: TYPE_ICONS.get('folder'),
 		children: [],
 		level,
 	}
 }
 
-function createFileObj (id, name, icon) {
+function createFileObj(id, name, icon) {
 	return {
 		type: 'file',
 		filetype: getFiletypeByIcon(icon),
@@ -103,58 +128,39 @@ function createFileObj (id, name, icon) {
 	};
 }
 
-function createFolderObj (id, name, icon) {
+function createFileObjByUrl(url, name) {
+	const match = url.match(/\.([^.]*)$/);
+	const extension = match ? match[1] : null;
+	const filetype = EXTENSION_TYPES.get(extension) || 'other';
+	return {
+		type: 'file',
+		filetype,
+		name,
+		url,
+		icon: TYPE_ICONS.get(filetype),
+	}
+}
+
+function createFolderObj(id, name, icon) {
 	return {
 		type: 'dir',
 		fetched: false,
 		id,
 		name,
-		icon: icon || 'http://moodle.nottingham.ac.uk/theme/image.php/nottingham_arts/folder/1457712810/icon',
+		icon: icon || TYPE_ICONS.get('folder'),
 		children: [],
 	}
 }
 
-function getIdByActivity (activity) {
+function getIdByActivity(activity) {
 	return activity.id.split('-')[1];
 }
 
-function getIconByActivity (activity) {
+function getIconByActivity(activity) {
 	return activity.querySelector('.activityinstance>a>.activityicon').src;
 }
 
-function getTitleByElementAndLevel (el, level) {
-	if (!el.childElementCount) {
-		if (getFontSize(el) === level) {
-			return el.textContent.trim();
-		} else {
-			return '';
-		}
-	} else {
-		return Array.from(el.childNodes)
-			.filter(node => node.nodeType === 3 || !rejectedTags.includes(node.tagName))
-			.map(node => {
-				if (node.nodeType === 3) {
-					return getFontSize(el) === level ? node.textContent.trim() : '';
-				} else {
-					return getTitleByElementAndLevel(node, level);
-				}
-			})
-			.join('');
-	}
-}
-
-function getTitlByEl (el, level) {
-	if (level === undefined) {
-		level = getLevelByEl(el);
-	}
-	if (level === -1) {
-		return null;
-	} else {
-		return getTitleByElementAndLevel(el, level);
-	}
-}
-
-function getNameByActivity (activity) {
+function getNameByActivity(activity) {
 	const instancename = activity.querySelector('.activityinstance>a>.instancename').childNodes;
 	return Array.from(instancename)
 		.filter(node => node.nodeType === 3)
@@ -163,7 +169,7 @@ function getNameByActivity (activity) {
 		.trim();
 }
 
-function cleanData (data) {
+function cleanData(data) {
 	delete data.level;
 	delete data.parent;
 	if (data.children) {
@@ -185,56 +191,62 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 		const sections = document.querySelectorAll('.section.main:not(.hidden)');
 		for (const section of sections) {
 			const content = section.getElementsByClassName('content')[0];
-			let name = content.getElementsByClassName('sectionname')[0].textContent.trim();
-			const summary = getTitlByEl(content.getElementsByClassName('summary')[0]);
+			let name = content.getElementsByClassName('sectionname')[0].textContent.trim().replace(/\s+/g, ' ');
+			const summary = content.getElementsByClassName('summary')[0].textContent.trim().replace(/\s+/g, ' ');
 			if (summary && summary.length > 1 && summary.length < 50) {
 				name = summary;
 			}
 			const dir = createDirObj(name, Infinity);
 			let currentDir = dir;
-			const activities = content.getElementsByClassName('activity');
+			const activities = content.querySelectorAll('.activity,a[href]');
 			for (let activity of activities) {
-				let id = getIdByActivity(activity);
-				if (activity.classList.contains('modtype_label')) {
-					let level = getLevelByEl(activity);
-					if (level === -1) {
-						// not a catagory label
-						continue;
+				if (activity.tagName === 'A') {
+					if (activity.href.startsWith('http://moodle.nottingham.ac.uk/pluginfile.php/')) {
+						const file = createFileObjByUrl(activity.href, activity.textContent.trim().replace(/\s+/g, ' '));
+						currentDir.children.push(file);
 					}
-					const name = getTitlByEl(activity);
-					const newDir = createDirObj(name, level);
-					while (currentDir.level <= newDir.level && currentDir !== dir) {
-						currentDir = currentDir.parent;
-					}
-					newDir.parent = currentDir;
-					currentDir.children.push(newDir);
-					currentDir = newDir;
 				} else {
-					if (!activity.querySelector('.activityinstance>a')) {
-						// link unavailable
-						continue;
+					let id = getIdByActivity(activity);
+					if (activity.classList.contains('modtype_label')) {
+						const [level, name] = getLevelByEl(activity);
+						if (level === -1) {
+							// not a catagory label
+							continue;
+						}
+						const newDir = createDirObj(name, level);
+						while (currentDir.level <= newDir.level && currentDir !== dir) {
+							currentDir = currentDir.parent;
+						}
+						newDir.parent = currentDir;
+						currentDir.children.push(newDir);
+						currentDir = newDir;
+					} else {
+						if (!activity.querySelector('.activityinstance>a')) {
+							// link unavailable
+							continue;
+						}
+						const icon = getIconByActivity(activity);
+						const name = getNameByActivity(activity);
+						if (activity.classList.contains('modtype_resource')) {
+							const file = createFileObj(`resource-${id}`, name, icon);
+							currentDir.children.push(file);
+						} else if (activity.classList.contains('modtype_equella')) {
+							const file = createFileObj(`equella-${id}`, name, icon);
+							currentDir.children.push(file);
+						} else if (activity.classList.contains('modtype_folder')) {
+							const folder = createFolderObj(`folder-${id}`, name, icon);
+							currentDir.children.push(folder);
+						}
 					}
-					const icon = getIconByActivity(activity);
-					const name = getNameByActivity(activity);
-					if (activity.classList.contains('modtype_resource')) {
-						const file = createFileObj(`resource-${id}`, name, icon);
-						currentDir.children.push(file);
-					} else if (activity.classList.contains('modtype_equella')) {
-						const file = createFileObj(`equella-${id}`, name, icon);
-						currentDir.children.push(file);
-					} else if (activity.classList.contains('modtype_folder')) {
-						const folder = createFolderObj(`folder-${id}`, name, icon);
-						currentDir.children.push(folder);
-					}
+					/*
+						modtype_feedback
+						modtype_url
+						modtype_page
+						modtype_quiz
+						modtype_book
+						modtype_equella
+					*/
 				}
-				/*
-					modtype_feedback
-					modtype_url
-					modtype_page
-					modtype_quiz
-					modtype_book
-					modtype_equella
-				*/
 			}
 			data.children.push(dir);
 		}
