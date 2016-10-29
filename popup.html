@@ -3,45 +3,83 @@
 <head>
 	<meta charset="utf-8">
 	<title>Moodown</title>
-	<link rel="stylesheet" href="popup.css">
+	<link rel="stylesheet" href="FileList.css">
+	<link rel="stylesheet" href="app.css">
 </head>
 <body>
-	<h1 id="title"></h1>
-	<div id="body">
-		<div id="files"></div>
-		<div id="options">
-			<div id="filter">
-				<select id="filter-type">
-					<option value="wildcard">Wildcard</option>
-					<option value="string">String</option>
-					<option value="regexp">RegExp</option>
-				</select>
-				<input id="filter-pattern">
-			</div>
-			<div id="summary">
-				<table id="summary-table">
-					<thead>
-						<tr>
-							<th></th>
-							<th>Filetype</th>
-							<th>Number</th>
-						</tr>
-					</thead>
-					<tbody id="filetypes">
-					</tbody>
-				</table>
-			</div>
-			<div id="action">
-				<button id="go">Go!</button>
+	<div id="app">
+		<h1 id="title">{{tree ? tree.name : 'loading'}}</h1>
+		<div id="body">
+			<file-list ref="fileList" v-if="tree" id="files" :node="tree"></file-list>
+			<div id="options">
+				<div id="filter">
+					<select id="filter-type" v-model="filter.type">
+						<option v-for="filterType in filterTypes" :value="filterType.id">{{filterType.name}}</option>
+					</select>
+					<input id="filter-pattern" v-model="filter.pattern">
+				</div>
+				<div id="summary">
+					<table id="summary-table">
+						<thead>
+							<tr>
+								<th></th>
+								<th>File Type</th>
+								<th>Number</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr v-for="filetype in filetypes">
+								<td>
+									<input type="checkbox" v-model="filetype.checked">
+								</td>
+								<td>{{filetype.name}}</td>
+								<td>{{filetype.number}}</td>
+							</tr>
+							<tr>
+								<td></td>
+								<td style="font-weight: 800">Total</td>
+								<td>{{totalFiles}}</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+				<div id="action">
+					<button id="go" @click="download" :disabled="downloading">
+						<template v-if="downloading">{{downloadedFiles}}/{{totalFiles}}</template>
+						<template v-if="!downloading">Go!</template>
+					</button>
+				</div>
 			</div>
 		</div>
+		<div id="loading" v-show="loading"></div>
 	</div>
-	<div id="loading" class="hidden">
-	</div>
-	<script src="polyfill.js"></script>
-	<script src="components.js"></script>
-	<script src="download.js"></script>
-	<script src="folder.js"></script>
-	<script src="popup.js"></script>
+
+	<template id="file-list">
+		<div v-show="shownFiles || node.type === 'root' || unfetchedDirs">
+			<div v-if="node.type !== 'root'" class="header">
+				<label class="expander" :style="{ visibility: node.type === 'file' ? 'hidden' : 'visible' }">
+					<input type="checkbox" v-model="expanded">
+					<span></span>
+				</label>
+				<input type="checkbox" class="checker" v-model="checked" @change="onCheck">
+				<span class="icon" :style="{ backgroundImage: `url('${node.icon}')` }">&nbsp;</span>
+				<span class="summary">
+					<span class="node-name">{{node.name}}</span>
+					<span class="children" v-if="node.type !== 'file'">({{selectedFiles}}/{{shownFiles}}{{unfetchedDirs ? '+' : ''}})</span>
+				</span>
+			</div>
+
+			<ul v-if="node.children" class="children-list" :class="{ 'no-indent': node.type === 'root' }" v-show="expanded">
+				<li v-for="file in node.children">
+					<file-list :node="file"></file-list>
+				</li>
+			</ul>
+		</div>
+	</template>
+
+	<script src="co.min.js"></script>
+	<script src="vue.min.js"></script>
+	<script src="FileList.js"></script>
+	<script src="app.js"></script>
 </body>
 </html>

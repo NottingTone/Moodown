@@ -29,6 +29,8 @@ body {
 	float: left;
 	font-size: 17px;
 	overflow-x: hidden;
+	padding: 0 15px 0 5px;
+	box-sizing: border-box;
 }
 
 #options {
@@ -37,7 +39,6 @@ body {
 }
 
 #filter-type {
-	-webkit-appearance: menulist-button;
 	width: 100%;
 	height: 30px;
 	float: left;
@@ -101,83 +102,6 @@ body {
 #go[disabled] {
 	background: #888;
 	cursor: default;
-}
-
-li.dir, li.file {
-	list-style: none;
-}
-
-li.file {
-	padding-left: 13px;
-}
-
-li.dir {
-	position: relative;
-}
-
-.switch {
-	width: 0;
-	height: 0;
-	border-top: 5px solid transparent;
-	border-bottom: 5px solid transparent;
-	border-left: 8px solid #6e6e6e;
-	cursor: pointer;
-	margin-right: 5px;
-	transform: translateY(40%);
-}
-
-.switch.open {
-	transform: translateY(40%) rotate(90deg);
-}
-
-li>.header {
-	display: flex;
-}
-
-ul.files {
-	display: none;
-}
-
-ul.files.open {
-	display: block;
-}
-
-.icon {
-	flex: 0 0 18px;
-	background-repeat: no-repeat;
-	background-size: 18px;
-	margin: 0 5px;
-}
-
-.check {
-	flex: 0 0 18px;
-}
-
-.dirnum {
-	margin-left: 5px;
-	font-size: 12px;
-	color: #777;
-}
-
-#files ul {
-	padding-left: 16px;
-}
-
-.hidden {
-	display: none;
-}
-
-#loading.show {
-	position: fixed;
-	left: 0;
-	top: 0;
-	right: 0;
-	bottom: 0;
-	display: block;
-}
-
-#filetypes>:last-child {
-	font-weight: 800;
 }
 
 #loading {

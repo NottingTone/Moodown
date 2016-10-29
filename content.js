@@ -2,19 +2,32 @@
 
 (function(){
 
-const iconTypes = new Map([
-	[/\/f\/pdf-24$/, 'PDF'],
-	[/\/f\/document-24$/, 'Word'],
-	[/\/f\/powerpoint-24$/, 'PPT'],
-	[/\/f\/spreadsheet-24$/, 'Excel'],
-	[/\/f\/calc-24$/, 'Calc'],
-]);
-
 const acceptedTags = ['H1', 'H2', 'H3', 'H4', 'H5', 'H6'];
 const rejectedTags = [];
 const criticalFontSize = 16;
 
-function getFiletypeByIcon (icon) {
+const iconTypes = new Map([
+	[/\/f\/pdf-24$/, 'pdf'],
+	[/\/f\/document-24$/, 'doc'],
+	[/\/f\/powerpoint-24$/, 'slides'],
+	[/\/f\/spreadsheet-24$/, 'spreadsheet'],
+	[/\/f\/calc-24$/, 'calc'],
+]);
+
+const extensionTypes = new Map([
+	['pdf', 'pdf'],
+	['doc', 'doc'],
+	['ppt', 'slides'],
+	['pptx', 'slides'],
+	['xls', 'spreadsheet'],
+	['xlsx', 'spreadsheet'],
+	['zip', 'archive'],
+	['7z', 'archive'],
+	['rar', 'archive'],
+	['gz', 'archive'],
+]);
+
+function getFiletypeByIcon(icon) {
 	for (let [iconPattern, filetype] of iconTypes) {
 		if (iconPattern.test(icon)) {
 			return filetype;
@@ -23,8 +36,20 @@ function getFiletypeByIcon (icon) {
 	return 'unknown';
 }
 
+function getFiletypeByExtension(extension) {
+	if (extensionTypes.has(extension)) {
+		return extensionTypes.get(extension);
+	} else {
+		return 'unknown';
+	}
+}
+
 function getFontSize (el) {
-	return parseFloat(getComputedStyle(el).fontSize);
+	if (el.nodeType === 1) {
+		return parseFloat(getComputedStyle(el).fontSize);
+	} else {
+		return 0;
+	}
 }
 
 function getLevelByEl (el, accepted = false) {
@@ -60,9 +85,10 @@ function getLevelByEl (el, accepted = false) {
 function createDirObj (name, level) {
 	return {
 		type: 'dir',
+		fetched: true,
 		name,
 		icon: 'http://moodle.nottingham.ac.uk/theme/image.php/nottingham_arts/folder/1457712810/icon',
-		files: [],
+		children: [],
 		level,
 	}
 }
@@ -70,7 +96,7 @@ function createDirObj (name, level) {
 function createFileObj (id, name, icon) {
 	return {
 		type: 'file',
-		fileType: getFiletypeByIcon(icon),
+		filetype: getFiletypeByIcon(icon),
 		id,
 		name,
 		icon,
@@ -79,10 +105,12 @@ function createFileObj (id, name, icon) {
 
 function createFolderObj (id, name, icon) {
 	return {
-		type: 'folder',
+		type: 'dir',
+		fetched: false,
 		id,
 		name,
 		icon: icon || 'http://moodle.nottingham.ac.uk/theme/image.php/nottingham_arts/folder/1457712810/icon',
+		children: [],
 	}
 }
 
@@ -139,8 +167,8 @@ function getNameByActivity (activity) {
 function cleanData (data) {
 	delete data.level;
 	delete data.parent;
-	if (data.files) {
-		for (let file of data.files) {
+	if (data.children) {
+		for (let file of data.children) {
 			cleanData(file);
 		}
 	}
@@ -151,9 +179,9 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
 		let module = document.getElementById('course-header').textContent.trim();
 		let data = {
-			type: 'module',
+			type: 'root',
 			name: module,
-			files: [],
+			children: [],
 		};
 		let sections = document.querySelectorAll('.section.main:not(.hidden)');
 		for (let section of sections) {
@@ -180,7 +208,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 						currentDir = currentDir.parent;
 					}
 					newDir.parent = currentDir;
-					currentDir.files.push(newDir);
+					currentDir.children.push(newDir);
 					currentDir = newDir;
 				} else {
 					if (!activity.querySelector('.activityinstance>a')) {
@@ -191,10 +219,10 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 					let name = getNameByActivity(activity);
 					if (activity.classList.contains('modtype_resource')) {
 						let file = createFileObj(id, name, icon);
-						currentDir.files.push(file);
+						currentDir.children.push(file);
 					} else if (activity.classList.contains('modtype_folder')) {
 						let folder = createFolderObj(id, name, icon);
-						currentDir.files.push(folder);
+						currentDir.children.push(folder);
 					}
 				}
 				/*
@@ -203,9 +231,10 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 					modtype_page
 					modtype_quiz
 					modtype_book
+					modtype_equella
 				*/
 			}
-			data.files.push(dir);
+			data.children.push(dir);
 		}
 		cleanData(data);
 		sendResponse(data);
