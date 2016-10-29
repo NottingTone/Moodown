@@ -160,6 +160,9 @@ Vue.component('file-list', {
 					filetype: getFiletypeByIcon(match[2]) || 'unknown',
 				});
 			}
+			if (!this.node.name) {
+				this.node.name = name;
+			}
 			this.node.fetched = true;
 			this.node.children = children;
 			this.addUnfetchedDirs(-1);

@@ -116,16 +116,14 @@ new Vue({
 			let currentTab = tabs[0];
 			let match;
 			if (match = currentTab.url.match(/^http:\/\/moodle.nottingham.ac.uk\/mod\/folder\/view\.php\?id=(\d+)$/)) {
-				this.startLoading();
-				let id = match[1];
-				getFolder(id)
-				.then((folder) => {
-					initComponents({
-						name: `Folder - ${folder.name}`,
-						type: 'dir',
-						files: [folder],
-					});
-					this.stopLoading();
+				this.tree = {
+					type: 'dir',
+					fetched: false,
+					id: match[1],
+					icon: 'http://moodle.nottingham.ac.uk/theme/image.php/nottingham_science/core/1477502187/f/folder-24',
+				};
+				Vue.nextTick(() => {
+					this.$refs.fileList.fetch();
 				});
 			} else if (currentTab.url.startsWith('http://moodle.nottingham.ac.uk/course/view.php?id=')) {
 				this.startLoading();
