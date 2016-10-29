@@ -66,6 +66,37 @@ function chromeDownload(url, path) {
 	});
 }
 
+function parseFolder(node) {
+	const filenameIcon = node.querySelector('.fp-filename-icon');
+	const icon = filenameIcon.querySelector('.fp-icon>img').src;
+	const name = filenameIcon.querySelector('.fp-filename').textContent;
+	let type, url, children, fetched, filetype;
+	if (filenameIcon.tagName === 'SPAN') {
+		type = 'file';
+		url = filenameIcon.querySelector('a[href]').href;
+		filetype = getFiletypeByIcon(icon) || 'other';
+	} else {
+		type = 'dir';
+		fetched = true;
+		children = [];
+		const childrenNodes = node.querySelector('ul');
+		for (const child of childrenNodes.childNodes) {
+			if (child.nodeType === 1 && child.tagName === 'LI') {
+				children.push(parseFolder(child))
+			}
+		}
+	}
+	return JSON.parse(JSON.stringify({
+		type,
+		name,
+		icon,
+		url,
+		children,
+		fetched,
+		filetype,
+	}));
+}
+
 Vue.nextTickPromise = function() {
 	return new Promise((resolve, reject) => {
 		Vue.nextTick(resolve);
@@ -147,24 +178,16 @@ Vue.component('file-list', {
 			const children = [];
 			const resp = yield fetch(`http://moodle.nottingham.ac.uk/mod/folder/view.php?id=${this.node.id}`, { credentials: 'include' });
 			const html = yield resp.text();
-			const main = html.match(/<section id="region-main"[\s\S]*?<\/section>/)[0];
-			const name = main.match('<h2>(.*?)</h2>')[1];
-			const regexFile = /<a href="(http:\/\/moodle.nottingham.ac.uk\/pluginfile.php.*?)">[\s\S]*?<img.*?src="(.*?)" \/>[\s\S]*?<span class="fp-filename">(.*?)<\/span>/g;
-			let match;
-			while (match = regexFile.exec(main)) {
-				children.push({
-					type: 'file',
-					url: match[1],
-					icon: match[2],
-					name: match[3],
-					filetype: getFiletypeByIcon(match[2]) || 'other',
-				});
-			}
+			const main = html.match(/<div id="folder_tree0" class="filemanager"><ul><li>([\s\S]*?)<\/li><\/ul>(?:<\/div>){3}<span/)[1];
+			const node = document.createElement('div');
+			node.innerHTML = main;
+			const folder = parseFolder(node);
+			const name = html.match('<h2>(.*?)</h2>')[1];
 			if (!this.node.name) {
 				this.node.name = name;
 			}
 			this.node.fetched = true;
-			this.node.children = children;
+			this.node.children = folder.children;
 			this.addUnfetchedDirs(-1);
 			this.$root.stopLoading();
 		}),

@@ -117,10 +117,10 @@ new Vue({
 			let match;
 			if (match = currentTab.url.match(/^http:\/\/moodle.nottingham.ac.uk\/mod\/folder\/view\.php\?id=(\d+)$/)) {
 				this.tree = {
-					type: 'dir',
+					type: 'root',
 					fetched: false,
 					id: match[1],
-					icon: 'http://moodle.nottingham.ac.uk/theme/image.php/nottingham_science/core/1477502187/f/folder-24',
+					children: [],
 				};
 				Vue.nextTick(() => {
 					this.$refs.fileList.fetch();
