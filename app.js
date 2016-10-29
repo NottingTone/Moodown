@@ -96,6 +96,9 @@ new Vue({
 			this.loading && --this.loading;
 		},
 		download: co.wrap(function*() {
+			if (!this.totalFiles) {
+				return;
+			}
 			this.downloadedFiles = 0;
 			this.downloading = true;
 			this.startLoading();
