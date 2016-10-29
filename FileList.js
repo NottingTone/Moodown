@@ -239,7 +239,7 @@ Vue.component('file-list', {
 					throw Error('Unknown redirection');
 				}
 				break;
-			case 'module':
+			case 'equella':
 				url = `http://moodle.nottingham.ac.uk/mod/equella/view.php?id=${id}`;
 				resp = yield fetch(url, {
 					method: 'HEAD',

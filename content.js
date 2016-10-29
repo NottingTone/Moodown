@@ -114,6 +114,10 @@ function createFolderObj (id, name, icon) {
 	}
 }
 
+function getIdByActivity (activity) {
+	return activity.id.split('-')[1];
+}
+
 function getIconByActivity (activity) {
 	return activity.querySelector('.activityinstance>a>.activityicon').src;
 }
@@ -190,6 +194,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 			let currentDir = dir;
 			const activities = content.getElementsByClassName('activity');
 			for (let activity of activities) {
+				let id = getIdByActivity(activity);
 				if (activity.classList.contains('modtype_label')) {
 					let level = getLevelByEl(activity);
 					if (level === -1) {
@@ -212,13 +217,13 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 					const icon = getIconByActivity(activity);
 					const name = getNameByActivity(activity);
 					if (activity.classList.contains('modtype_resource')) {
-						const file = createFileObj(activity.id, name, icon);
+						const file = createFileObj(`resource-${id}`, name, icon);
 						currentDir.children.push(file);
 					} else if (activity.classList.contains('modtype_equella')) {
-						const file = createFileObj(activity.id, name, icon);
+						const file = createFileObj(`equella-${id}`, name, icon);
 						currentDir.children.push(file);
 					} else if (activity.classList.contains('modtype_folder')) {
-						const folder = createFolderObj(activity.id, name, icon);
+						const folder = createFolderObj(`folder-${id}`, name, icon);
 						currentDir.children.push(folder);
 					}
 				}
