@@ -192,7 +192,7 @@ Vue.component('file-list', {
 			} else if (resp.url === url) {
 				const resp = yield fetch(url, { credentials: 'include' });
 				const text = yield resp.text();
-				const match = text.match(/<div class="resourceworkaround">Click <a href="(.*?)"/);
+				const match = text.match(/Click <a href="(http:\/\/moodle.nottingham.ac.uk\/pluginfile.php.*?)"[\s\S]*?<\/a> link to view the file/);
 				if (match) {
 					this.node.url = match[1];
 				} else {
