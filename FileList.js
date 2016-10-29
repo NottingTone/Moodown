@@ -170,11 +170,13 @@ Vue.component('file-list', {
 				return;
 			}
 			if (this.node.type === 'file') {
-				if (!this.node.url) {
-					yield this.getUrl();
+				if (this.$root.filetypes.some(x => x.id === this.node.filetype && x.checked)) {
+					if (!this.node.url) {
+						yield this.getUrl();
+					}
+					yield chromeDownload(this.node.url, path);
+					this.$root.addDownloaded(1);
 				}
-				yield chromeDownload(this.node.url, path);
-				this.$root.addDownloaded(1);
 			} else {
 				for (const child of this.$children) {
 					yield child.download(`${path || ''}${safeFilename(this.node.name)}/`);
