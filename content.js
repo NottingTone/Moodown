@@ -89,7 +89,7 @@ function getLevelByEl(el, accepted = false) {
 	} else if (!el.childElementCount) {
 		const level = getElLevel(el);
 		if ((acceptedTags.includes(el.tagName) || accepted || level >= criticalFontSize) && el.textContent.trim()) {
-			return [level, el.textContent.trim().replace(/\s+/g, ' ')];
+			return [level, el.textContent.replace(/\s+/g, ' ')];
 		} else {
 			return [-1];
 		}
@@ -103,7 +103,15 @@ function getLevelByEl(el, accepted = false) {
 					return getLevelByEl(node, accepted);
 				}
 			})
-			.reduce((a, b) => a[0] > b[0] ? a : b, [-1]);
+			.reduce((a, b) => {
+				if (a[0] === b[0]) {
+					return [a[0], a[1] + b[1]];
+				} else if (a[0] > b[0]) {
+					return a;
+				} else {
+					return b;
+				}
+			}, [-1]);
 	}
 }
 
@@ -191,11 +199,8 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 		const sections = document.querySelectorAll('.section.main:not(.hidden)');
 		for (const section of sections) {
 			const content = section.getElementsByClassName('content')[0];
-			let name = content.getElementsByClassName('sectionname')[0].textContent.trim().replace(/\s+/g, ' ');
-			const summary = content.getElementsByClassName('summary')[0].textContent.trim().replace(/\s+/g, ' ');
-			if (summary && summary.length > 1 && summary.length < 50) {
-				name = summary;
-			}
+			const nameEl = content.querySelector('.summary,.sectionname,.section-title');
+			const [,name] = getLevelByEl(nameEl);
 			const dir = createDirObj(name, Infinity);
 			let currentDir = dir;
 			const activities = content.querySelectorAll('.activity,a[href]');
