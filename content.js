@@ -28,7 +28,7 @@ const extensionTypes = new Map([
 ]);
 
 function getFiletypeByIcon(icon) {
-	for (let [iconPattern, filetype] of iconTypes) {
+	for (const [iconPattern, filetype] of iconTypes) {
 		if (iconPattern.test(icon)) {
 			return filetype;
 		}
@@ -54,7 +54,7 @@ function getFontSize (el) {
 
 function getLevelByEl (el, accepted = false) {
 	if (!el.childElementCount) {
-		let fontSize = getFontSize(el);
+		const fontSize = getFontSize(el);
 		if ((acceptedTags.includes(el.tagName) || accepted || fontSize >= criticalFontSize) && el.textContent.trim()) {
 			return fontSize;
 		} else {
@@ -66,7 +66,7 @@ function getLevelByEl (el, accepted = false) {
 			.filter(node => node.nodeType === 3 || !rejectedTags.includes(node.nodeName))
 			.map(node => {
 				if (node.nodeType === 3) {
-					let fontSize = getFontSize(el);
+					const fontSize = getFontSize(el);
 					if ((accepted || fontSize >= criticalFontSize) && node.textContent.trim()) {
 						return fontSize;
 					} else {
@@ -114,10 +114,6 @@ function createFolderObj (id, name, icon) {
 	}
 }
 
-function getIdByActivity (activity) {
-	return activity.id.split('-')[1];
-}
-
 function getIconByActivity (activity) {
 	return activity.querySelector('.activityinstance>a>.activityicon').src;
 }
@@ -155,8 +151,7 @@ function getTitlByEl (el, level) {
 }
 
 function getNameByActivity (activity) {
-	let name = '';
-	let instancename = activity.querySelector('.activityinstance>a>.instancename').childNodes;
+	const instancename = activity.querySelector('.activityinstance>a>.instancename').childNodes;
 	return Array.from(instancename)
 		.filter(node => node.nodeType === 3)
 		.map(node => node.textContent.trim())
@@ -177,33 +172,32 @@ function cleanData (data) {
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 	if (request === 'requestData') {
 
-		let module = document.getElementById('course-header').textContent.trim();
-		let data = {
+		const module = document.getElementById('course-header').textContent.trim();
+		const data = {
 			type: 'root',
 			name: module,
 			children: [],
 		};
-		let sections = document.querySelectorAll('.section.main:not(.hidden)');
-		for (let section of sections) {
-			let content = section.getElementsByClassName('content')[0];
+		const sections = document.querySelectorAll('.section.main:not(.hidden)');
+		for (const section of sections) {
+			const content = section.getElementsByClassName('content')[0];
 			let name = content.getElementsByClassName('sectionname')[0].textContent.trim();
-			let summary = getTitlByEl(content.getElementsByClassName('summary')[0]);
+			const summary = getTitlByEl(content.getElementsByClassName('summary')[0]);
 			if (summary && summary.length > 1 && summary.length < 50) {
 				name = summary;
 			}
-			let dir = createDirObj(name, Infinity);
+			const dir = createDirObj(name, Infinity);
 			let currentDir = dir;
-			let activities = content.getElementsByClassName('activity');
+			const activities = content.getElementsByClassName('activity');
 			for (let activity of activities) {
-				let id = getIdByActivity(activity);
 				if (activity.classList.contains('modtype_label')) {
 					let level = getLevelByEl(activity);
 					if (level === -1) {
 						// not a catagory label
 						continue;
 					}
-					let name = getTitlByEl(activity);
-					let newDir = createDirObj(name, level);
+					const name = getTitlByEl(activity);
+					const newDir = createDirObj(name, level);
 					while (currentDir.level <= newDir.level && currentDir !== dir) {
 						currentDir = currentDir.parent;
 					}
@@ -215,13 +209,16 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 						// link unavailable
 						continue;
 					}
-					let icon = getIconByActivity(activity);
-					let name = getNameByActivity(activity);
+					const icon = getIconByActivity(activity);
+					const name = getNameByActivity(activity);
 					if (activity.classList.contains('modtype_resource')) {
-						let file = createFileObj(id, name, icon);
+						const file = createFileObj(activity.id, name, icon);
+						currentDir.children.push(file);
+					} else if (activity.classList.contains('modtype_equella')) {
+						const file = createFileObj(activity.id, name, icon);
 						currentDir.children.push(file);
 					} else if (activity.classList.contains('modtype_folder')) {
-						let folder = createFolderObj(id, name, icon);
+						const folder = createFolderObj(activity.id, name, icon);
 						currentDir.children.push(folder);
 					}
 				}

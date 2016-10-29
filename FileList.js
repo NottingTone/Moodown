@@ -46,13 +46,16 @@ function safeFilename(filename) {
 		.replace(/[\\\/\0<>:"\|\?\*]+/g, '_');
 }
 
-function chromeDownload(url, path) {
+function chromeDownload(url, path, name) {
 	return new Promise((resolve, reject) => {
 		let filename = url.slice(url.lastIndexOf('/') + 1);
 		if (filename.indexOf('?') !== -1) {
 			filename = filename.slice(0, filename.indexOf('?'));
 		}
-		filename = decodeURIComponent(filename);
+		filename = decodeURIComponent(filename).trim();
+		if (!filename) {
+			filename = name;
+		}
 		chrome.downloads.download({
 			url,
 			filename: path + filename,
@@ -79,10 +82,12 @@ function parseFolder(node) {
 		type = 'dir';
 		fetched = true;
 		children = [];
-		const childrenNodes = node.querySelector('ul');
-		for (const child of childrenNodes.childNodes) {
-			if (child.nodeType === 1 && child.tagName === 'LI') {
-				children.push(parseFolder(child))
+		const childrenNodes = node.querySelector('.fp-filename-icon~ul');
+		if (childrenNodes) {
+			for (const child of childrenNodes.childNodes) {
+				if (child.nodeType === 1 && child.tagName === 'LI') {
+					children.push(parseFolder(child))
+				}
 			}
 		}
 	}
@@ -176,7 +181,7 @@ Vue.component('file-list', {
 		fetch: co.wrap(function*() {
 			this.$root.startLoading();
 			const children = [];
-			const resp = yield fetch(`http://moodle.nottingham.ac.uk/mod/folder/view.php?id=${this.node.id}`, { credentials: 'include' });
+			const resp = yield fetch(`http://moodle.nottingham.ac.uk/mod/folder/view.php?id=${this.node.id.split('-')[1]}`, { credentials: 'include' });
 			const html = yield resp.text();
 			const main = html.match(/<div id="folder_tree0" class="filemanager"><ul><li>([\s\S]*?)<\/li><\/ul>(?:<\/div>){3}<span/)[1];
 			const node = document.createElement('div');
@@ -200,7 +205,7 @@ Vue.component('file-list', {
 					if (!this.node.url) {
 						yield this.getUrl();
 					}
-					yield chromeDownload(this.node.url, path);
+					yield chromeDownload(this.node.url, path, this.node.name);
 					this.$root.addDownloaded(1);
 				}
 			} else {
@@ -210,24 +215,53 @@ Vue.component('file-list', {
 			}
 		}),
 		getUrl: co.wrap(function*() {
-			const url = `http://moodle.nottingham.ac.uk/mod/resource/view.php?id=${this.node.id}`;
-			const resp = yield fetch(url, {
-				method: 'HEAD',
-				credentials: 'include',
-			});
-			if (resp.url.startsWith('http://moodle.nottingham.ac.uk/pluginfile.php')) {
-				this.node.url = resp.url;
-			} else if (resp.url === url) {
-				const resp = yield fetch(url, { credentials: 'include' });
-				const text = yield resp.text();
-				const match = text.match(/Click <a href="(http:\/\/moodle.nottingham.ac.uk\/pluginfile.php.*?)"[\s\S]*?<\/a> link to view the file/);
-				if (match) {
-					this.node.url = match[1];
+			const [type, id] = this.node.id.split('-');
+			let url, resp;
+			switch (type) {
+			case 'resource':
+				url = `http://moodle.nottingham.ac.uk/mod/resource/view.php?id=${id}`;
+				resp = yield fetch(url, {
+					method: 'HEAD',
+					credentials: 'include',
+				});
+				if (resp.url.startsWith('http://moodle.nottingham.ac.uk/pluginfile.php')) {
+					this.node.url = resp.url;
+				} else if (resp.url === url) {
+					const resp = yield fetch(url, { credentials: 'include' });
+					const text = yield resp.text();
+					const match = text.match(/Click <a href="(http:\/\/moodle.nottingham.ac.uk\/pluginfile.php.*?)"[\s\S]*?<\/a> link to view the file/);
+					if (match) {
+						this.node.url = match[1];
+					} else {
+						throw Error('Unknown page content');
+					}
 				} else {
-					throw Error('Other page content');
+					throw Error('Unknown redirection');
 				}
-			} else {
-				throw Error('Other redirection');
+				break;
+			case 'module':
+				url = `http://moodle.nottingham.ac.uk/mod/equella/view.php?id=${id}`;
+				resp = yield fetch(url, {
+					method: 'HEAD',
+					credentials: 'include',
+				});
+				if (resp.url.startsWith('https://equella.nottingham.')) {
+					this.node.url = resp.url;
+				} else if (resp.url === url) {
+					const resp = yield fetch(url, { credentials: 'include' });
+					const text = yield resp.text();
+					const match = text.match(/Click <a href="(https:\/\/equella.nottingham.*?)"[\s\S]*?<\/a> link to open resource/);
+					if (match) {
+						this.node.url = match[1];
+					} else {
+						throw Error('Unknown page content');
+					}
+				} else {
+					throw Error('Unknown redirection');
+				}
+				break;
+			default:
+				throw Error('Unknown file');
 			}
 		}),
 	},
