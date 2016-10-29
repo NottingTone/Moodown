@@ -29,14 +29,14 @@ function getFiletypeByIcon(icon) {
 			return filetype;
 		}
 	}
-	return 'unknown';
+	return 'other';
 }
 
 function getFiletypeByExtension(extension) {
 	if (extensionTypes.has(extension)) {
 		return extensionTypes.get(extension);
 	} else {
-		return 'unknown';
+		return 'other';
 	}
 }
 
@@ -157,7 +157,7 @@ Vue.component('file-list', {
 					url: match[1],
 					icon: match[2],
 					name: match[3],
-					filetype: getFiletypeByIcon(match[2]) || 'unknown',
+					filetype: getFiletypeByIcon(match[2]) || 'other',
 				});
 			}
 			if (!this.node.name) {
@@ -201,10 +201,10 @@ Vue.component('file-list', {
 				if (match) {
 					this.node.url = match[1];
 				} else {
-					throw Error('Unknown page content');
+					throw Error('Other page content');
 				}
 			} else {
-				throw Error('Unknown redirection');
+				throw Error('Other redirection');
 			}
 		}),
 	},

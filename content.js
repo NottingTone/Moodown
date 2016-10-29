@@ -33,14 +33,14 @@ function getFiletypeByIcon(icon) {
 			return filetype;
 		}
 	}
-	return 'unknown';
+	return 'other';
 }
 
 function getFiletypeByExtension(extension) {
 	if (extensionTypes.has(extension)) {
 		return extensionTypes.get(extension);
 	} else {
-		return 'unknown';
+		return 'other';
 	}
 }
 
