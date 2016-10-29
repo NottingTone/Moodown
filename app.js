@@ -36,6 +36,7 @@ new Vue({
 			number: 0,
 			checked: true,
 		}, {
+			id: 'unknown',
 			name: 'Unknown',
 			number: 0,
 			checked: false,
