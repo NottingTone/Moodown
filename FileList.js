@@ -59,6 +59,7 @@ function chromeDownload(url, path, name) {
 		chrome.downloads.download({
 			url,
 			filename: path + filename,
+			FilenameConflictAction: 'overwrite',
 		}, (downloadId) => {
 			if (downloadId) {
 				resolve(downloadId);
