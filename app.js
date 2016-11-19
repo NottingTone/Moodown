@@ -119,7 +119,7 @@ new Vue({
 				this.tree = {
 					type: 'root',
 					fetched: false,
-					id: match[1],
+					id: `folder-${match[1]}`,
 					children: [],
 				};
 				Vue.nextTick(() => {
