@@ -1,0 +1,384 @@
+body,
+#wrapper,
+#page-content,
+.container-fluid,
+.moodle-dialogue-wrap .moodle-dialogue-content .yui3-widget-stdmod,
+.moodle-dialogue-base .moodle-dialogue-wrap {
+    background-color: #d6e9fc !important;
+}
+
+header.navbar,
+.navbar-top,
+.block,
+#region-main,
+.dropdown-menu,
+.page-navbar-inner,
+#footer-expandable,
+#page-footer,
+.block_new_course_overview .course_title h2.title,
+div#block-mymodules-overview ul.yui3-tabview-list li.yui3-tab-selected a,
+div#block-mymodules-overview ul.yui3-tabview-list li.yui3-tab-selected a:hover,
+div#block-mymodules-overview ul.yui3-tabview-list li.yui3-tab-selected a:focus,
+li.tabbedcontent ul.yui3-tabview-list li.yui3-tab-selected a,
+li.tabbedcontent ul.yui3-tabview-list li.yui3-tab-selected a:hover,
+li.tabbedcontent ul.yui3-tabview-list li.yui3-tab-selected a:focus,
+div#block-mymodules-overview ul.yui3-tabview-list li a,
+div#block-mymodules-overview ul.yui3-tabview-list li a:hover,
+div#block-mymodules-overview ul.yui3-tabview-list li a:focus,
+li.tabbedcontent ul.yui3-tabview-list li a,
+li.tabbedcontent ul.yui3-tabview-list li a:hover,
+li.tabbedcontent ul.yui3-tabview-list li a:focus {
+    background-color: #9cf !important;
+    color: #000 !important;
+}
+
+.tabtree .tabrow0 li a,
+.tabtree .tabrow1 li a,
+.tabtree .tabrow0 li a span,
+.tabtree .tabrow1 li a span {
+    background-image: none;
+    background: #B0D7FF; 
+    background: -moz-linear-gradient(top, #99CCFF 3%, #fff 4%, #B0D7FF 100%); 
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(3%,#99CCFF), color-stop(4%,c9e4ff), color-stop(100%,#B0D7FF));
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+}
+
+.tabtree .tabrow0 li a:hover,
+.tabtree .tabrow1 li a:hover,
+.tabtree .tabrow0 li a:hover span,
+.tabtree .tabrow1 li a:hover span {
+    background-image: none;
+    background: #8CBBEA; 
+    background: -moz-linear-gradient(top, #99CCFF 3%, c9e4ff 4%, #8CBBEA 100%); 
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(3%,#99CCFF), color-stop(4%,c9e4ff), color-stop(100%,#8CBBEA));
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+}
+
+.tabtree .tabrow0 li.selected,
+.tabtree .tabrow0 li.selected a,
+.tabtree .tabrow0 li.selected a span{
+    background-image: none;
+    background: #8CBBEA; 
+    background: -moz-linear-gradient(top, #99CCFF 3%, c9e4ff 4%, #8CBBEA 100%); 
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(3%,#99CCFF), color-stop(4%,c9e4ff), color-stop(100%,#8CBBEA));
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+}
+
+#footer-expandable {
+    border-top-color: #5891c9;
+    border-top-width: 1px;
+    border-top-style: solid;
+}
+
+.footer-expandable-inner {
+    background-color: #9cf !important;
+}
+
+#footer-expandable div {
+    background-color: #9cf !important;
+}
+
+textarea, input[type="text"], input[type="password"], input[type="datetime"], input[type="datetime-local"], input[type="date"],
+input[type="month"], input[type="time"], input[type="week"],input[type="number"], input[type="email"], input[type="url"],
+input[type="search"], input[type="tel"], input[type="color"], .uneditable-input, select {
+    border: none;
+    box-shadow: none;
+    -webkit-box-shadow: none;
+    -moz-box-shadow: none;
+    background: #D6E9FC;
+    color: #000;
+    text-shadow: none;
+    font-size: 13px;
+    transition: background 0.25s;
+    -moz-transition: background 0.25s;
+    -webkit-transition: background 0.25s;
+    -ms-transition: background 0.25s;
+    -o-transition: background 0.25s;
+}
+button:first-child, input.form-submit:first-child, input#id_submitbutton, input#id_submitbutton2,
+input[type="text"]+button, button, input.form-submit, input[type="button"], input[type="submit"], input[type="reset"] {
+    border: none;
+    box-shadow: none;
+    -webkit-box-shadow: none;
+    -moz-box-shadow: none;
+    background: #007ea6;
+    color: #ffffff;
+    text-shadow: none;
+    font-size: 13px;
+    transition: background 0.25s;
+    -moz-transition: background 0.25s;
+    -webkit-transition: background 0.25s;
+    -ms-transition: background 0.25s;
+    -o-transition: background 0.25s;
+}
+
+button:first-child:hover, input.form-submit:first-child:hover, input#id_submitbutton:hover,
+input#id_submitbutton2:hover,input[type="text"]+button:hover, button:hover, input.form-submit:hover,
+input[type="button"]:hover, input[type="submit"]:hover, input[type="reset"]:hover {
+    background: #005581;
+    color: #ffffff;
+    transition: background 0.25s;
+    -moz-transition: background 0.25s;
+    -webkit-transition: background 0.25s;
+    -ms-transition: background 0.25s;
+    -o-transition: background 0.25s;
+}
+
+table#form td.submit, .form-buttons, .path-admin .buttons, #fitem_id_submitbutton, .fp-content-center form+div, div.backup-section+form, #fgroup_id_buttonar {
+  background-color: #99CCFF;
+  border-top: 1px solid #99CCFF;
+}
+
+input[disabled], select[disabled], textarea[disabled], input[readonly], select[readonly], textarea[readonly] {
+    background-color: #A8C0D8;
+}
+
+.editor_atto_content_wrap {
+  background-color: #D6E9FC;
+  border-color: #6eacea;
+}
+
+div.editor_atto_toolbar {
+  background: #86baef;
+  border: 1px solid #6eacea;
+}
+
+div.editor_atto_toolbar div.atto_group {
+  display: inline-block;
+  border: 1px solid #5798D9;
+  border-bottom: 1px solid #7C98B4;
+  background: #DCEDFF;
+}
+
+.generaltable, .generaltable tr, .generaltable tr:after {
+    border: 1px solid #5891c9;
+    border-collapse: collapse;
+    background-color: #D6E9FC;
+}
+
+.generaltable .header {
+    background-color: #8cbbea !important;
+    border: 1px solid #5891c9;
+    border-collapse: collapse;
+}
+
+table#explaincaps tbody tr:nth-child(even) td, table#defineroletable tbody tr:nth-child(even) td,
+table.grading-report tbody tr:nth-child(even) td, table#listdirectories tbody tr:nth-child(even) td,
+table.rolecaps tbody tr:nth-child(even) td, table.userenrolment tbody tr:nth-child(even) td,
+table#form tbody tr:nth-child(even) td, form#movecourses table tbody tr:nth-child(even) td,
+#page-admin-course-index .editcourse tbody tr:nth-child(even) td,
+.forumheaderlist tbody tr:nth-child(even) td, table.flexible tbody tr:nth-child(even) td,
+.generaltable tbody tr:nth-child(even) td, table#explaincaps tbody tr:nth-child(even) th,
+table#defineroletable tbody tr:nth-child(even) th, table.grading-report tbody tr:nth-child(even) th,
+table#listdirectories tbody tr:nth-child(even) th, table.rolecaps tbody tr:nth-child(even) th,
+table.userenrolment tbody tr:nth-child(even) th, table#form tbody tr:nth-child(even) th,
+form#movecourses table tbody tr:nth-child(even) th,
+#page-admin-course-index .editcourse tbody tr:nth-child(even) th,
+.forumheaderlist tbody tr:nth-child(even) th, table.flexible tbody tr:nth-child(even) th, .generaltable tbody tr:nth-child(even) th {
+    background-color: #B0D7FF !important;
+    border: 1px solid #5891c9;
+    border-collapse: collapse;
+}
+
+table#explaincaps tbody tr:nth-child(odd) td, table#defineroletable tbody tr:nth-child(odd) td,
+table.grading-report tbody tr:nth-child(odd) td, table#listdirectories tbody tr:nth-child(odd) td,
+table.rolecaps tbody tr:nth-child(odd) td, table.userenrolment tbody tr:nth-child(odd) td,
+table#form tbody tr:nth-child(odd) td, form#movecourses table tbody tr:nth-child(odd) td,
+#page-admin-course-index .editcourse tbody tr:nth-child(odd) td,
+.forumheaderlist tbody tr:nth-child(odd) td, table.flexible tbody tr:nth-child(odd) td,
+.generaltable tbody tr:nth-child(odd) td, table#explaincaps tbody tr:nth-child(odd) th,
+table#defineroletable tbody tr:nth-child(odd) th, table.grading-report tbody tr:nth-child(odd) th,
+table#listdirectories tbody tr:nth-child(odd) th, table.rolecaps tbody tr:nth-child(odd) th,
+table.userenrolment tbody tr:nth-child(odd) th, table#form tbody tr:nth-child(odd) th,
+form#movecourses table tbody tr:nth-child(odd) th,
+#page-admin-course-index .editcourse tbody tr:nth-child(odd) th,
+.forumheaderlist tbody tr:nth-child(odd) th, table.flexible tbody tr:nth-child(odd) th, .generaltable tbody tr:nth-child(odd) th {
+    background-color: #9cf !important;
+    border: 1px solid #5891c9;
+    border-collapse: collapse;
+}
+
+#page-admin-index .releasenoteslink, #page-admin-index .adminwarning, #page-admin-index .adminerror {
+    background-color: #B0D7FF;
+    color: #000000;
+    border-color: #97BADD;
+}
+
+.editing .section .activity :hover {
+    background-color: #B0D7FF;
+    border-color: #B0D7FF;
+}
+
+.navbar-lower .logo img {
+    display: none;
+}
+
+.navbar-lower .logo h1 {
+    display:block;
+}
+
+a,
+.block_settings .block_tree .tree_item.branch,
+.block_navigation .block_tree .tree_item.branch,
+.jsenabled .block_settings .block_tree .collapsed .tree_item.branch,
+.jsenabled .block_navigation .block_tree .collapsed .tree_item.branch {
+    color: #000 !important;
+    text-decoration: underline !important;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    color: #000 !important;
+}
+
+body.jsenabled #footer-expandable .footer-toggle {
+    background-color:#000;
+    padding-bottom:7px;
+}
+
+#faculty-header h3 {
+    padding-left:0 !important;
+    background-image: none;
+}
+
+.block_new_course_overview .expandable-closed .course_title h2.title,
+body.jsenabled.format-topcoll .course-content ul.ctopics li.section .content .toggle a.toggle_closed,
+.format-topcoll #toggle-all .content .sectionbody h4 a.on,
+.format-topcoll #toggle-all .content .sectionbody h4 a.on:hover {
+    background: none;
+}
+
+.block_new_course_overview .expandable-open .course_title h2.title,
+body.jsenabled.format-topcoll .course-content ul.ctopics li.section .content .toggle a.toggle_open,
+.format-topcoll #toggle-all .content .sectionbody h4 a.off,
+.format-topcoll #toggle-all .content .sectionbody h4 a.off:hover{
+    background: none;
+}
+
+.block_new_course_overview .expandable-closed .course_title h2.title:after,
+body.jsenabled.format-topcoll .course-content ul.ctopics li.section .content .toggle a.toggle_closed:after,
+.format-topcoll #toggle-all .content .sectionbody h4 a.on:after {
+    display: block;
+    position: absolute;
+    right: 0;
+    top: 15px;
+    content: '\25bc'
+}
+
+.block_new_course_overview .expandable-open .course_title h2.title:after,
+body.jsenabled.format-topcoll .course-content ul.ctopics li.section .content .toggle a.toggle_open:after,
+.format-topcoll #toggle-all .content .sectionbody h4 a.off:after {
+    display: block;
+    position: absolute;
+    right: 0;
+    top: 15px;
+    content: '\25b2'
+}
+
+.whitecell {
+    background-color: #EFF3FE;
+}
+
+table#form td.submit, .form-buttons, .path-admin .buttons, #fitem_id_submitbutton,
+.fp-content-center form+div, div.backup-section+form, #fgroup_id_buttonar {
+    background-color: #B0D7FF;
+}
+
+div#cal {
+    background-color: #B0D7FF;
+}
+
+.moodle-dialogue-confirm .confirmation-dialogue input {
+    border: none;
+    box-shadow: none;
+    -webkit-box-shadow: none;
+    -moz-box-shadow: none;
+    background: #007ea6;
+    text-shadow: none;
+    color: #000;
+    font-weight: bold;
+}
+
+.jschooser .choosercontainer #chooseform .instruction, .jschooser .choosercontainer #chooseform .typesummary {
+    background-color: #99CCFF;
+}
+
+.jschooser .choosercontainer #chooseform .alloptions {
+    -webkit-box-shadow: none;
+    -moz-box-shadow: none;
+    box-shadow: none;
+    background: #99CCFF;
+}
+
+.choosercontainer #chooseform .option label {
+    border-bottom-color: #83bdf7;
+}
+
+.choosercontainer #chooseform .selected {
+    background-color: #D6E9FC;
+}
+
+.moodle-dialogue-base .moodle-dialogue .moodle-dialogue-bd,
+.moodle-dialogue-base .moodle-dialogue-wrap .moodle-dialogue-hd,
+.moodle-dialogue-base .moodle-dialogue-wrap .moodle-dialogue-hd.yui3-widget-hd, 
+.moodle-dialogue-confirm .moodle-dialogue-hd {
+    background-image: none;
+    border: none;
+    box-shadow: none;
+    -webkit-box-shadow: none;
+    -moz-box-shadow: none;
+    background: #83bdf7;
+    text-shadow: none;
+    color: #000;
+    font-weight: bold;
+}
+
+.moodle-dialogue-base .closebutton button:hover {
+    background: #99CCFF;
+}
+
+.moodle-dialogue-wrap .moodle-dialogue-content .yui3-widget-stdmod,
+.moodle-dialogue-base .moodle-dialogue-wrap {
+    background: #abd4fc;
+}
+
+.moodle-actionmenu[data-enhanced].show .menu a:hover,
+.moodle-actionmenu[data-enhanced].show .menu a:hover .menu-action-text,
+.moodle-actionmenu[data-enhanced].show .menu>li:hover {
+    color:#fff;
+    background-color:#0070A8;
+    text-decoration: none;
+}
+
+.moodle-actionmenu[data-enhanced].show .menu {
+    background-color: #D6E9FC;
+    text-decoration: none;
+}
+
+.editing .section .activity:hover, .editing .section .activity.action-menu-shown {
+    background-color: #D6E9FC;
+}
+
+hr {
+    border-top: 1px solid #83BDF7;
+    border-bottom: 1px solid #83BDF7;
+}
+
+.course-content ul li.section.main {
+    border-bottom: 1px solid #83BDF7;
+}
+
+.yui-skin-sam .yui-calendar td.calcell {
+    background: #D6E9FC !important;
+}
+
+#dateselector-calendar-content,
+.yui-skin-sam .yui-calcontainer {
+    background-color: #99CCFF !important;
+}
+
+#dock .dockedtitle h2 {
+    color: #fff !important;
+}
