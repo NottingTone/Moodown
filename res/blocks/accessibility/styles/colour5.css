@@ -1,0 +1,205 @@
+body,
+#wrapper,
+#page-content,
+.container-fluid {
+    background-color: #ede9e6 !important;
+}
+
+header.navbar,
+.navbar-top,
+.block,
+#region-main,
+.dropdown-menu,
+.page-navbar-inner,
+#footer-expandable,
+#page-footer,
+.block_new_course_overview .course_title h2.title,
+div#block-mymodules-overview ul.yui3-tabview-list li.yui3-tab-selected a,
+div#block-mymodules-overview ul.yui3-tabview-list li.yui3-tab-selected a:hover,
+div#block-mymodules-overview ul.yui3-tabview-list li.yui3-tab-selected a:focus,
+li.tabbedcontent ul.yui3-tabview-list li.yui3-tab-selected a,
+li.tabbedcontent ul.yui3-tabview-list li.yui3-tab-selected a:hover,
+li.tabbedcontent ul.yui3-tabview-list li.yui3-tab-selected a:focus,
+div#block-mymodules-overview ul.yui3-tabview-list li a,
+div#block-mymodules-overview ul.yui3-tabview-list li a:hover,
+div#block-mymodules-overview ul.yui3-tabview-list li a:focus,
+li.tabbedcontent ul.yui3-tabview-list li a,
+li.tabbedcontent ul.yui3-tabview-list li a:hover,
+li.tabbedcontent ul.yui3-tabview-list li a:focus {
+    background-color: #fff !important;
+    color: #000 !important;
+}
+
+#footer-expandable {
+    border-top-color: #A8A3A0;
+    border-top-width: 1px;
+    border-top-style: solid;
+}
+
+.footer-expandable-inner {
+    background-color: #fff !important;
+}
+
+#footer-expandable div {
+    background-color: #fff !important;
+}
+
+textarea, input[type="text"], input[type="password"], input[type="datetime"], input[type="datetime-local"], input[type="date"],
+input[type="month"], input[type="time"], input[type="week"],input[type="number"], input[type="email"], input[type="url"],
+input[type="search"], input[type="tel"], input[type="color"], .uneditable-input, input, button, select {
+    background-color: #fff;
+}
+
+input[disabled], select[disabled], textarea[disabled], input[readonly], select[readonly], textarea[readonly] {
+    background-color: #dcfdcf;
+}
+
+.generaltable .header {
+    background-color: #efebe8 !important;
+}
+
+table#explaincaps tbody tr:nth-child(even) td, table#defineroletable tbody tr:nth-child(even) td,
+table.grading-report tbody tr:nth-child(even) td, table#listdirectories tbody tr:nth-child(even) td,
+table.rolecaps tbody tr:nth-child(even) td, table.userenrolment tbody tr:nth-child(even) td,
+table#form tbody tr:nth-child(even) td, form#movecourses table tbody tr:nth-child(even) td,
+#page-admin-course-index .editcourse tbody tr:nth-child(even) td,
+.forumheaderlist tbody tr:nth-child(even) td, table.flexible tbody tr:nth-child(even) td,
+.generaltable tbody tr:nth-child(even) td, table#explaincaps tbody tr:nth-child(even) th,
+table#defineroletable tbody tr:nth-child(even) th, table.grading-report tbody tr:nth-child(even) th,
+table#listdirectories tbody tr:nth-child(even) th, table.rolecaps tbody tr:nth-child(even) th,
+table.userenrolment tbody tr:nth-child(even) th, table#form tbody tr:nth-child(even) th,
+form#movecourses table tbody tr:nth-child(even) th,
+#page-admin-course-index .editcourse tbody tr:nth-child(even) th,
+.forumheaderlist tbody tr:nth-child(even) th, table.flexible tbody tr:nth-child(even) th, .generaltable tbody tr:nth-child(even) th {
+    background-color: #e5dfda !important;
+}
+
+table#explaincaps tbody tr:nth-child(odd) td, table#defineroletable tbody tr:nth-child(odd) td,
+table.grading-report tbody tr:nth-child(odd) td, table#listdirectories tbody tr:nth-child(odd) td,
+table.rolecaps tbody tr:nth-child(odd) td, table.userenrolment tbody tr:nth-child(odd) td,
+table#form tbody tr:nth-child(odd) td, form#movecourses table tbody tr:nth-child(odd) td,
+#page-admin-course-index .editcourse tbody tr:nth-child(odd) td,
+.forumheaderlist tbody tr:nth-child(odd) td, table.flexible tbody tr:nth-child(odd) td,
+.generaltable tbody tr:nth-child(odd) td, table#explaincaps tbody tr:nth-child(odd) th,
+table#defineroletable tbody tr:nth-child(odd) th, table.grading-report tbody tr:nth-child(odd) th,
+table#listdirectories tbody tr:nth-child(odd) th, table.rolecaps tbody tr:nth-child(odd) th,
+table.userenrolment tbody tr:nth-child(odd) th, table#form tbody tr:nth-child(odd) th,
+form#movecourses table tbody tr:nth-child(odd) th,
+#page-admin-course-index .editcourse tbody tr:nth-child(odd) th,
+.forumheaderlist tbody tr:nth-child(odd) th, table.flexible tbody tr:nth-child(odd) th, .generaltable tbody tr:nth-child(odd) th {
+    background-color: #fff !important;
+}
+
+#page-admin-index .releasenoteslink, #page-admin-index .adminwarning, #page-admin-index .adminerror {
+    background-color: #e5dfda;
+    color: #000000;
+    border-color: #97BADD;
+}
+
+.editing .section .activity :hover {
+    background-color: #e5dfda;
+    border-color: #e5dfda;
+}
+
+.navbar-lower .logo img {
+    display: none;
+}
+
+.navbar-lower .logo h1 {
+    display:block;
+}
+
+a,
+.block_settings .block_tree .tree_item.branch,
+.block_navigation .block_tree .tree_item.branch,
+.jsenabled .block_settings .block_tree .collapsed .tree_item.branch,
+.jsenabled .block_navigation .block_tree .collapsed .tree_item.branch {
+    color: #000 !important;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    color: #000 !important;
+}
+
+body.jsenabled #footer-expandable .footer-toggle {
+    background-color:#000;
+    padding-bottom:7px;
+}
+
+#faculty-header h3 {
+    padding-left:0 !important;
+    background-image: none;
+}
+
+.block_new_course_overview .expandable-closed .course_title h2.title,
+body.jsenabled.format-topcoll .course-content ul.ctopics li.section .content .toggle a.toggle_closed,
+.format-topcoll #toggle-all .content .sectionbody h4 a.on,
+.format-topcoll #toggle-all .content .sectionbody h4 a.on:hover {
+    background: none;
+}
+
+.block_new_course_overview .expandable-open .course_title h2.title,
+body.jsenabled.format-topcoll .course-content ul.ctopics li.section .content .toggle a.toggle_open,
+.format-topcoll #toggle-all .content .sectionbody h4 a.off,
+.format-topcoll #toggle-all .content .sectionbody h4 a.off:hover{
+    background: none;
+}
+
+.block_new_course_overview .expandable-closed .course_title h2.title:after,
+body.jsenabled.format-topcoll .course-content ul.ctopics li.section .content .toggle a.toggle_closed:after,
+.format-topcoll #toggle-all .content .sectionbody h4 a.on:after {
+    display: block;
+    position: absolute;
+    right: 0;
+    top: 15px;
+    content: '\25bc'
+}
+
+.block_new_course_overview .expandable-open .course_title h2.title:after,
+body.jsenabled.format-topcoll .course-content ul.ctopics li.section .content .toggle a.toggle_open:after,
+.format-topcoll #toggle-all .content .sectionbody h4 a.off:after {
+    display: block;
+    position: absolute;
+    right: 0;
+    top: 15px;
+    content: '\25b2'
+}
+
+a {
+    color:#007ea6 !important;
+}
+
+.format-topcoll .course-content ul.ctopics li.section .content .toggle a h3 {
+    color: #007ea6 !important;
+    font-weight: bold;
+    text-transform: none;
+}
+
+#page-login-index .block.social-info a.social-listlink {
+    color: #007ea6 !important;
+    clear:none;
+    float: left;
+    margin: 5px 0 0 12px;
+}
+
+div#block-mymodules-overview ul.yui3-tabview-list li a,
+div#block-mymodules-overview ul.yui3-tabview-list li a:hover,
+div#block-mymodules-overview ul.yui3-tabview-list li a:focus,
+li.tabbedcontent ul.yui3-tabview-list li a,
+li.tabbedcontent ul.yui3-tabview-list li a:hover,
+li.tabbedcontent ul.yui3-tabview-list li a:focus {
+    background: #ffffff;
+    border: none;
+    border-right: 1px solid #d5d3d4;
+    display: block;
+    height: 50px;
+    font-weight: normal;
+    padding: 0 15px !important;
+    margin: 0;
+    line-height: 50px;
+    color: #007ea6 !important;
+}
+
+#dock .dockedtitle h2 {
+    color: #fff !important;
+}
