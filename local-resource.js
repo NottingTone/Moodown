@@ -51,7 +51,7 @@ const MOODLE_RESOURCE_PATH = new Map([
 ]);
 
 const MOODLE_RESOURCE_REGEX = new Map([
-	[/^theme\/image\.php\/\w+\/([^\/]*)\/\d+\/(.*)$/, 'theme/$1/$2.png'],
+	[/^theme\/image\.php\/\w+\/([^\/]*)\/\d+\/(.*)$/, 'theme/$1/$2'],
 	[/^theme\/styles\.php\/\w+\/\d+\/(.*)$/, 'theme/$1.css'],
 	[/^pluginfile\.php\/1\/theme_nottingham\/(.*)$$/, 'theme/theme_nottingham/$1'],
 	[/^lib\/javascript\.php\/\d+\/(.*)$/, '$1'],
