@@ -10,7 +10,12 @@ const ICON_TYPES = new Map([
 ]);
 
 
-async function folder2Files (folder) {
+
+function select() {
+
+}
+
+async function folder2Files(folder) {
     const ul = await findChildFiles(folder);
     const bt = document.createElement('button');
     if(ul) {
@@ -49,6 +54,7 @@ async function findChildFiles(folder) {
 }
 
 
+
 function getFileTypeByIcon(iconURL) {
     for (const [iconPattern, fileType] of ICON_TYPES) {
         if (iconPattern.test(iconURL)) {
@@ -65,20 +71,42 @@ function enSelectable(el) {
 }
 
 
+function enSelectAll(folder) {
+    const box = folder.querySelector("input");
+    box.addEventListener("click", function() {
+        linksInFolder = folder.parentNode.querySelectorAll("ul > li > span > a[href^='http://moodle.nottingham.ac.uk/']");
+        if (box.checked === true) {
+            for (const innerLink of linksInFolder) {
+                const innerLinkBox = innerLink.querySelector("input");
+                innerLinkBox.checked = true;
+            }
+        } else {
+            for (const innerLink of linksInFolder) {
+                    const innerLinkBox = innerLink.querySelector("input");
+                    innerLinkBox.checked = false;
+                }
+            }
+    });
+    
+}
+
+
 async function findLinks() {
     links = document.querySelectorAll("#region-main a[href^='http://moodle.nottingham.ac.uk/']");
     for (const link of links) {
         if(link.querySelector('img')) {
             const fileType = getFileTypeByIcon(link);
-            if (fileType !== 'folder' && fileType !== 'assign' && fileType !== 'forum') {
+            if (fileType !== 'assign' && fileType !== 'forum') {
                 enSelectable(link);
-            } else if (fileType === 'folder'){
+            } 
+            if (fileType === 'folder'){
                 await folder2Files(link);
                 if (link.parentNode.querySelector("button").innerText!=="null") {
-                    linksInFolder = link.parentNode.querySelectorAll("a[href^='http://moodle.nottingham.ac.uk/']");
+                    linksInFolder = link.parentNode.querySelectorAll("ul > li > span > a[href^='http://moodle.nottingham.ac.uk/']");
                     for (const innerLink of linksInFolder) {
                         enSelectable(innerLink);
                     }
+                    enSelectAll(link);
                 }
             }
         } else {
