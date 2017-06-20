@@ -15,7 +15,24 @@ const ICON_TYPES = new Map([
 
 
 function select(link) {
-    link.querySelector("input").checked = true;
+    link.parentNode.querySelector("input").checked = true;
+
+}
+
+function remove(link) {
+    link.parentNode.querySelector("input").checked = false;
+}
+
+async function findChildFiles(folder) {
+    try {
+        const resp = await fetch(folder.href, {credentials: 'include'});
+        const html = await resp.text();
+        const doc = document.createElement('html');
+        doc.innerHTML = html;
+        return doc.querySelector('#folder_tree0 > ul > li > ul')
+    } catch (e) {
+        console.log('fetch fail', e);
+    }
 }
 
 async function folder2Files(folderLink) {
@@ -32,7 +49,7 @@ async function folder2Files(folderLink) {
                 bt.innerText = '+';
             } else {
                 ul.style.display = '';
-                bt.innerText = "-";
+                bt.innerText = '-';
             }
         });
     } else {
@@ -41,21 +58,6 @@ async function folder2Files(folderLink) {
         bt.disabled = true;
     }  
 }
-
-
-
-async function findChildFiles(folder) {
-    try {
-        const resp = await fetch(folder.href, {credentials: 'include'});
-        const html = await resp.text();
-        const doc = document.createElement('html');
-        doc.innerHTML = html;
-        return doc.querySelector('#folder_tree0 > ul > li > ul')
-    } catch (e) {
-        console.log('fetch fail', e);
-    }
-}
-
 
 
 function getFileTypeByIcon(iconURL) {
@@ -68,9 +70,9 @@ function getFileTypeByIcon(iconURL) {
 }
 
 function enSelectable(el) {
-    const checkbox = document.createElement("input");
-    checkbox.type = "checkbox";
-    checkbox.style.marginLeft = "35px";
+    const checkbox = document.createElement('input');
+    checkbox.type = 'checkbox';
+    checkbox.style.marginLeft = '35px';
     el.parentNode.appendChild(checkbox);
 }
 
@@ -78,37 +80,35 @@ function enSelectable(el) {
 
 
 function enSelectAll(folder) {
-    const folderBox = folder.parentNode.querySelector("input");
+    const folderBox = folder.parentNode.querySelector('input');
     const linksInFolder = folder.parentNode.querySelectorAll("ul > li > span > a[href^='http://moodle.nottingham.ac.uk/']");
     const countInnerLink = linksInFolder.length;
     let countSelectedInnerLink = 0;
-    folderBox.addEventListener("click", function() {
+    folderBox.addEventListener('click', function() {
         if (folderBox.checked === true) {
             for (const innerLink of linksInFolder) {
-                const innerLinkBox = innerLink.parentNode.querySelector("input");
-                innerLinkBox.checked = true;
+                select(innerLink);
             }
             countSelectedInnerLink = countInnerLink;
         } else {
             for (const innerLink of linksInFolder) {
-                const innerLinkBox = innerLink.parentNode.querySelector("input");
-                innerLinkBox.checked = false;
+                remove(innerLink);
             }
             countSelectedInnerLink = 0;
         }
     });
     for (const innerLink of linksInFolder) {
-        const innerLinkBox = innerLink.parentNode.querySelector("input");
-        innerLinkBox.addEventListener("click", function() {
+        const innerLinkBox = innerLink.parentNode.querySelector('input');
+        innerLinkBox.addEventListener('click', function() {
             if(innerLinkBox.checked === true) {
                 countSelectedInnerLink += 1;
             } else {
                 countSelectedInnerLink -= 1;
             }
             if(countSelectedInnerLink === countInnerLink) {
-                folderBox.checked = true;
+                select(folder);
             } else {
-                folderBox.checked = false;
+                remove(folder);
             }
         });
     }
@@ -125,13 +125,12 @@ async function findLinks() {
             } 
             if (fileType === 'folder'){
                 await folder2Files(link);
-                if (link.parentNode.querySelector("button").innerText !== 'NoInnerFile') {
+                if (link.parentNode.querySelector('button').innerText !== 'NoInnerFile') {
                     linksInFolder = link.parentNode.querySelectorAll("ul > li > span > a[href^='http://moodle.nottingham.ac.uk/']");
                     for (const innerLink of linksInFolder) {
                         enSelectable(innerLink);
                     }
                     enSelectAll(link);
-
                 }
             }
         } else {
