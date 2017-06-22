@@ -1,22 +1,25 @@
-
-
-
 const ICON_TYPES = new Map([
-    [/\/f\/pdf-24$/, 'pdf'],
-    [/\/f\/document-24$/, 'doc'],
-    [/\/f\/powerpoint-24$/, 'slides'],
-    [/\/f\/spreadsheet-24$/, 'spreadsheet'],
-    [/\/f\/calc-24$/, 'calc'],
-    [/\/folder\//, 'folder'],
+    [/\/pdf[-\d+]*$/, 'pdf'],
+    [/\/document[-\d+]*$/, 'doc'],
+    [/\/powerpoint[-\d+]*$/, 'slides'],
+    [/\/spreadsheet[-\d+]*$/, 'spreadsheet'],
+    [/\/text[-\d+]*$/, 'text'],
+    [/\/url\//, 'url'],
+    [/\/calc\//, 'calc'],
+    [/\/png[-\d+]*$/, 'png'],
+    [/\/folder\/|\/folder[-\d+]*$/, 'folder'],
     [/\/forum\//, 'forum'],
     [/\/assign\//, 'assign'],
+    [/\/attendance\//,'attendance'],
+    [/\/html[-\d+]*$/, 'html'],
+    [/\/sourcecode[-\d+]*$/, 'sourcecode'],
+    [/\/archive[-\d+]*$/, 'zip'],
 ]);
 
 
 
 function select(link) {
     link.parentNode.querySelector("input").checked = true;
-
 }
 
 function remove(link) {
@@ -31,8 +34,121 @@ async function findChildFiles(folder) {
         doc.innerHTML = html;
         return doc.querySelector('#folder_tree0 > ul > li > ul')
     } catch (e) {
-        console.log('fetch fail', e);
+        // console.log('fetch fail', e);
     }
+}
+
+
+function getLabelName(activity) {
+    const p = activity.querySelector("p");
+    return p.innerText;
+}   
+
+
+function isLabelValid(activity) {
+    const p = activity.querySelectorAll('p');
+    return p.length === 1;
+    // label without P or label with Many Ps are all invalid
+} 
+function getSectionName(ul) {
+    return ul.parentNode.querySelector('h3').innerText;
+}
+
+
+function groupBySectionName(sectionName, activities) {
+    const group = new Map();
+    let state = 'stop';
+    let labelName;
+    let arr = [];
+    let partNum = 1;
+    if (!activities[0].classList.contains('label')) {
+        state = 'progress';
+        labelName = sectionName + ' ' + partNum;
+    }
+    for(let i = 0; i < activities.length; i++) {
+        const activity = activities[i];
+        if((state === 'stop' || state === 'begin') && activity.classList.contains('label')) {
+            state = 'begin';
+        } else if(state === 'begin' && (activity.classList.contains('resource') || activity.classList.contains('folder'))) {
+            state = 'progress';
+            labelName = sectionName + ' ' + partNum;
+            arr.push(activity);
+        } else if(i === (activities.length - 1)) {
+            state = 'stop';
+            group.set(labelName, arr);
+            return group;
+        } else if(state === 'progress' && (activity.classList.contains('resource') || activity.classList.contains('folder'))) {
+            arr.push(activity);
+        } else if(state === 'progress' && activity.classList.contains('label')) {
+            state = 'stop';
+            group.set(labelName, arr);
+            partNum++;
+            arr = [];
+            i--;
+        }
+    }
+    group.set(labelName, arr);
+    return group;
+}  
+
+function groupByLabelName(ul, sectionName) {
+    const activities = ul.querySelectorAll('.activity');
+    const group = new Map();
+    let state = 'stop';
+    let labelName;
+    let arr = [];
+    if(!activities[0].classList.contains('label')) {
+        // console.log("hrererer");
+        return groupBySectionName(sectionName, activities);
+    } else {
+        for(let i = 0; i < activities.length; i++) {
+            const activity = activities[i];
+            if((state === 'stop' || state === 'begin') && activity.classList.contains('label')) {
+                state = 'begin';
+            } else if(state === 'begin' && (activity.classList.contains('resource') || activity.classList.contains('folder'))) {
+                state = 'progress';
+                if(!isLabelValid(activities[i-1])) {
+                    return groupBySectionName(sectionName, activities);
+                } else {
+                    labelName = getLabelName(activities[i-1]);
+                    arr.push(activity);
+                }
+            } else if (i === (activities.length - 1)) {
+                state = 'stop';
+                group.set(labelName, arr);
+                return group;
+            } else if(state === 'progress' && (activity.classList.contains('resource') || activity.classList.contains('folder'))) {
+                arr.push(activity);
+            } else if(state === 'progress' && activity.classList.contains('label')) {
+                state = 'stop';
+                group.set(labelName, arr);
+                arr = [];
+                i--;
+            } 
+        }
+        group.set(labelName, arr);
+    }
+    return group;
+}
+
+function grouping() {
+    const uls = document.querySelectorAll('ul.img-text');
+    const sectionGroup = new Map();
+    for(let ul of uls) {
+        const sectionName = getSectionName(ul);
+        // console.log(sectionName);
+        const group = groupByLabelName(ul, sectionName);
+        sectionGroup.set(sectionName, group);
+    }
+    console.log(sectionGroup);
+}
+
+function showFolder(folderLink) {
+
+}
+
+function hideFolder(folderLink) {
+
 }
 
 async function folder2Files(folderLink) {
@@ -90,6 +206,7 @@ function enSelectAll(folder) {
                 select(innerLink);
             }
             countSelectedInnerLink = countInnerLink;
+
         } else {
             for (const innerLink of linksInFolder) {
                 remove(innerLink);
@@ -119,8 +236,8 @@ async function findLinks() {
     links = document.querySelectorAll("#region-main a[href^='http://moodle.nottingham.ac.uk/']");
     for (const link of links) {
         if(link.querySelector('img')) {
-            const fileType = getFileTypeByIcon(link);
-            if (fileType !== 'assign' && fileType !== 'forum') {
+            const fileType = getFileTypeByIcon(link.querySelector('img').src);
+            if (fileType !== 'assign' && fileType !== 'forum' && fileType !== 'attendance' && fileType !== 'html' && fileType !== 'url') {
                 enSelectable(link);
             } 
             if (fileType === 'folder'){
@@ -139,5 +256,5 @@ async function findLinks() {
     }
 }
 
-
 findLinks();
+grouping();
