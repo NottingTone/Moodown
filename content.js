@@ -209,11 +209,17 @@ function grouping() {
 }
 
 function showFolder(folderLink) {
-
+    const ul = folderLink.parentNode.querySelector('ul');
+    const bt = folderLink.parentNode.querySelector('button');
+    ul.style.display = '';
+    bt.innerText = '-';
 }
 
 function hideFolder(folderLink) {
-
+    const ul = folderLink.parentNode.querySelector('ul');
+    const bt = folderLink.parentNode.querySelector('button');
+    ul.style.display = 'none';
+    bt.innerText = '+';
 }
 
 async function folder2Files(folderLink) {
@@ -254,31 +260,32 @@ function enSelectable(el) {
 function enSelectAll(folder) {
     const folderBox = folder.parentNode.querySelector('input');
     const linksInFolder = folder.parentNode.querySelectorAll("ul > li > span > a[href^='http://moodle.nottingham.ac.uk/']");
-    const countInnerLink = linksInFolder.length;
-    let countSelectedInnerLink = 0;
+    const InnerLinkLength = linksInFolder.length;
+    let selectedInnerLinkLength = 0;
     folderBox.addEventListener('click', function() {
         if (folderBox.checked === true) {
             for (const innerLink of linksInFolder) {
                 select(innerLink);
             }
-            countSelectedInnerLink = countInnerLink;
-
+            selectedInnerLinkLength = InnerLinkLength;
+            showFolder(folder);
         } else {
             for (const innerLink of linksInFolder) {
                 remove(innerLink);
             }
-            countSelectedInnerLink = 0;
+            selectedInnerLinkLength = 0;
+            hideFolder(folder);
         }
     });
     for (const innerLink of linksInFolder) {
         const innerLinkBox = innerLink.parentNode.querySelector('input');
         innerLinkBox.addEventListener('click', function() {
             if(innerLinkBox.checked === true) {
-                countSelectedInnerLink += 1;
+                selectedInnerLinkLength += 1;
             } else {
-                countSelectedInnerLink -= 1;
+                selectedInnerLinkLength -= 1;
             }
-            if(countSelectedInnerLink === countInnerLink) {
+            if(selectedInnerLinkLength === InnerLinkLength) {
                 select(folder);
             } else {
                 remove(folder);
@@ -307,34 +314,6 @@ async function findLinks(document) {
         }
     }
 }
-
-// async function findLinks(document) {
-//     links = document.querySelectorAll("#region-main a[href^='http://moodle.nottingham.ac.uk/']");
-//     for (const link of links) {
-//         if(link.querySelector('img')) {
-//             const fileType = getFileTypeByIcon(link.querySelector('img').src);
-//             const validType = ['doc', 'ppt', 'pdf', 'xls', 'folder', 'txt', 'zip', 'unknownres'];
-//             if (validType.indexOf(fileType) !== -1) {
-//                 enSelectable(link);
-//             } 
-//             if (fileType === 'folder'){
-//                 await folder2Files(link);
-//                 if (link.parentNode.querySelector('button').innerText !== 'NoInnerFile') {
-//                     linksInFolder = link.parentNode.querySelectorAll("ul > li > span > a[href^='http://moodle.nottingham.ac.uk/']");
-//                     for (const innerLink of linksInFolder) {
-//                         enSelectable(innerLink);
-//                     }
-//                     enSelectAll(link);
-//                 }
-//             }
-//         } else {
-//             const fileType = getFileTypeByURL(link);
-//             if (validType.indexOf(fileType) !== -1) {
-//                 enSelectable(link);
-//             } 
-//         }
-//     }
-// }
 
 findLinks(document);
 
