@@ -1,9 +1,11 @@
 const ICON_TYPES = new Map([
     [/\/pdf[-\d+]*$/, 'pdf'],
     [/\/document[-\d+]*$/, 'doc'],
-    [/\/powerpoint[-\d+]*$/, 'slides'],
-    [/\/spreadsheet[-\d+]*$/, 'spreadsheet'],
-    [/\/text[-\d+]*$/, 'text'],
+    [/\/powerpoint[-\d+]*$/, 'ppt'],
+    [/xlsx|\/spreadsheet[-\d+]*$/, 'xls'],
+    [/unknown|\/unknown[-\d+]*$/, 'unknownres'],
+    [/\/quiz\//, 'quiz'],
+    [/\/text[-\d+]*$/, 'txt'],
     [/\/url\//, 'url'],
     [/\/calc\//, 'calc'],
     [/\/png[-\d+]*$/, 'png'],
@@ -14,9 +16,34 @@ const ICON_TYPES = new Map([
     [/\/html[-\d+]*$/, 'html'],
     [/\/sourcecode[-\d+]*$/, 'sourcecode'],
     [/\/archive[-\d+]*$/, 'zip'],
+    [/.jpg$/, 'jpg'],
 ]);
 
 
+const URL_TYPES = new Map([
+    [/\.pdf$/, 'pdf'],
+    [/\.pptx?$/, 'ppt'],
+]);
+
+
+function getFileType(link) {
+    if(link.querySelector('img')) {
+        const iconURL = link.querySelector('img').src;
+        for (const [iconPattern, fileType] of ICON_TYPES) {
+            if (iconPattern.test(iconURL)) {
+                return fileType;
+            }
+        }
+        return 'other';
+    } else {
+        for (const [iconPattern, fileType] of ICON_TYPES) {
+            if (iconPattern.test(iconURL)) {
+                return fileType;
+            }
+        }
+        return 'other';
+    }
+}
 
 function select(link) {
     link.parentNode.querySelector("input").checked = true;
@@ -39,15 +66,33 @@ async function findChildFiles(folder) {
 }
 
 
+
+
 function getLabelName(activity) {
-    const p = activity.querySelector("p");
-    return p.innerText;
+    const ps = activity.querySelectorAll('p');
+    const hs = activity.querySelectorAll('h4');
+    if (hs.length !== 0) {
+        for (const h of hs) {
+            let sp = h.querySelector('span');
+            if(sp.querySelector('span')) {
+                sp = sp.querySelector('span');
+            }
+            console.log(sp.innerText);
+            return sp.innerText;
+        }
+    } else {
+        for (const p of ps) {
+            return p.innerText;
+        }
+    }
 }   
 
 
 function isLabelValid(activity) {
     const p = activity.querySelectorAll('p');
-    return p.length === 1;
+    const h = activity.querySelectorAll('h4');
+    return p.length !== 0 || h.length !== 0;
+
     // label without P or label with Many Ps are all invalid
 } 
 function getSectionName(ul) {
@@ -63,7 +108,7 @@ function groupBySectionName(sectionName, activities) {
     let partNum = 1;
     if (!activities[0].classList.contains('label')) {
         state = 'progress';
-        labelName = sectionName + ' ' + partNum;
+        labelName = sectionName + ' part_' + partNum;
     }
     for(let i = 0; i < activities.length; i++) {
         const activity = activities[i];
@@ -71,12 +116,8 @@ function groupBySectionName(sectionName, activities) {
             state = 'begin';
         } else if(state === 'begin' && (activity.classList.contains('resource') || activity.classList.contains('folder'))) {
             state = 'progress';
-            labelName = sectionName + ' ' + partNum;
+            labelName = sectionName + ' part_' + partNum;
             arr.push(activity);
-        } else if(i === (activities.length - 1)) {
-            state = 'stop';
-            group.set(labelName, arr);
-            return group;
         } else if(state === 'progress' && (activity.classList.contains('resource') || activity.classList.contains('folder'))) {
             arr.push(activity);
         } else if(state === 'progress' && activity.classList.contains('label')) {
@@ -87,9 +128,33 @@ function groupBySectionName(sectionName, activities) {
             i--;
         }
     }
-    group.set(labelName, arr);
+    if(state === 'progress') {
+        group.set(labelName, arr);
+    }
     return group;
-}  
+} 
+
+function labelNameTooLong(labelName) {
+    return labelName.length > 30;
+}
+
+function download(group) {
+    for(const [key, arr] of group) {
+        for(const [innerKey, innerArr] of arr) {
+            for(const tmp of innerArr) {
+                console.log(tmp);
+                const link = tmp.querySelector("a");
+                console.log(link.href);
+                // chrome.downloads.download({
+                //   url: link.href,
+                //   filename: link.innerText,
+                // });
+            }
+        }
+    }
+   
+}
+
 
 function groupByLabelName(ul, sectionName) {
     const activities = ul.querySelectorAll('.activity');
@@ -98,7 +163,6 @@ function groupByLabelName(ul, sectionName) {
     let labelName;
     let arr = [];
     if(!activities[0].classList.contains('label')) {
-        // console.log("hrererer");
         return groupBySectionName(sectionName, activities);
     } else {
         for(let i = 0; i < activities.length; i++) {
@@ -111,12 +175,11 @@ function groupByLabelName(ul, sectionName) {
                     return groupBySectionName(sectionName, activities);
                 } else {
                     labelName = getLabelName(activities[i-1]);
+                    if (labelNameTooLong(labelName)) {
+                        return groupBySectionName(sectionName, activities);
+                    }
                     arr.push(activity);
                 }
-            } else if (i === (activities.length - 1)) {
-                state = 'stop';
-                group.set(labelName, arr);
-                return group;
             } else if(state === 'progress' && (activity.classList.contains('resource') || activity.classList.contains('folder'))) {
                 arr.push(activity);
             } else if(state === 'progress' && activity.classList.contains('label')) {
@@ -126,7 +189,9 @@ function groupByLabelName(ul, sectionName) {
                 i--;
             } 
         }
-        group.set(labelName, arr);
+        if(state === 'progress') {
+            group.set(labelName, arr);
+        }
     }
     return group;
 }
@@ -140,7 +205,7 @@ function grouping() {
         const group = groupByLabelName(ul, sectionName);
         sectionGroup.set(sectionName, group);
     }
-    console.log(sectionGroup);
+    return sectionGroup;
 }
 
 function showFolder(folderLink) {
@@ -172,28 +237,19 @@ async function folder2Files(folderLink) {
         bt.innerText = 'NoInnerFile';
         folderLink.parentNode.appendChild(bt);
         bt.disabled = true;
+        folderLink.parentNode.querySelector('input').disabled = true;
     }  
 }
 
 
-function getFileTypeByIcon(iconURL) {
-    for (const [iconPattern, fileType] of ICON_TYPES) {
-        if (iconPattern.test(iconURL)) {
-            return fileType;
-        }
-    }
-    return 'other';
-}
+
 
 function enSelectable(el) {
     const checkbox = document.createElement('input');
     checkbox.type = 'checkbox';
     checkbox.style.marginLeft = '35px';
     el.parentNode.appendChild(checkbox);
-}
-
-
-
+} 
 
 function enSelectAll(folder) {
     const folderBox = folder.parentNode.querySelector('input');
@@ -231,30 +287,55 @@ function enSelectAll(folder) {
     }
 }
 
-
-async function findLinks() {
-    links = document.querySelectorAll("#region-main a[href^='http://moodle.nottingham.ac.uk/']");
-    for (const link of links) {
-        if(link.querySelector('img')) {
-            const fileType = getFileTypeByIcon(link.querySelector('img').src);
-            if (fileType !== 'assign' && fileType !== 'forum' && fileType !== 'attendance' && fileType !== 'html' && fileType !== 'url') {
-                enSelectable(link);
-            } 
-            if (fileType === 'folder'){
-                await folder2Files(link);
-                if (link.parentNode.querySelector('button').innerText !== 'NoInnerFile') {
-                    linksInFolder = link.parentNode.querySelectorAll("ul > li > span > a[href^='http://moodle.nottingham.ac.uk/']");
-                    for (const innerLink of linksInFolder) {
-                        enSelectable(innerLink);
-                    }
-                    enSelectAll(link);
-                }
+async function findLinks(document) {
+    resources = document.querySelectorAll('.resource');
+    for (const res of resources) {
+        const link = res.querySelector('a');
+        enSelectable(link);
+    }
+    folders = document.querySelectorAll('.folder');
+    for (const folder of folders) {
+        const link = folder.querySelector('a');
+        enSelectable(link);
+        await folder2Files(link);
+        if (link.parentNode.querySelector('button').innerText !== 'NoInnerFile') {
+            linksInFolder = link.parentNode.querySelectorAll("ul > li > span > a[href^='http://moodle.nottingham.ac.uk/']");
+            for (const innerLink of linksInFolder) {
+                enSelectable(innerLink);
             }
-        } else {
-            enSelectable(link);
+            enSelectAll(link);
         }
     }
 }
 
-findLinks();
-grouping();
+// async function findLinks(document) {
+//     links = document.querySelectorAll("#region-main a[href^='http://moodle.nottingham.ac.uk/']");
+//     for (const link of links) {
+//         if(link.querySelector('img')) {
+//             const fileType = getFileTypeByIcon(link.querySelector('img').src);
+//             const validType = ['doc', 'ppt', 'pdf', 'xls', 'folder', 'txt', 'zip', 'unknownres'];
+//             if (validType.indexOf(fileType) !== -1) {
+//                 enSelectable(link);
+//             } 
+//             if (fileType === 'folder'){
+//                 await folder2Files(link);
+//                 if (link.parentNode.querySelector('button').innerText !== 'NoInnerFile') {
+//                     linksInFolder = link.parentNode.querySelectorAll("ul > li > span > a[href^='http://moodle.nottingham.ac.uk/']");
+//                     for (const innerLink of linksInFolder) {
+//                         enSelectable(innerLink);
+//                     }
+//                     enSelectAll(link);
+//                 }
+//             }
+//         } else {
+//             const fileType = getFileTypeByURL(link);
+//             if (validType.indexOf(fileType) !== -1) {
+//                 enSelectable(link);
+//             } 
+//         }
+//     }
+// }
+
+findLinks(document);
+
+
