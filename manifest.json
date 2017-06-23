@@ -11,18 +11,13 @@
 		"default_icon": {
 			"32": "images/icon32.png"
 		},
-		"default_title": "Moodown",
+		"default_title": "Moodown"
 	},
 	"content_scripts": [{
 		"matches": [
 			"http://moodle.nottingham.ac.uk/course/view.php?id=*",
 			"http://moodle.nottingham.ac.uk/mod/folder/view.php?id=*"
 		],
-		"js": [
-			"content.js"
-		]
-	}],
-	"background": {
-		"scripts": ["background.js"]
-	}
+		"js": ["content.js"]
+	}]
 }
