@@ -25,7 +25,6 @@ const URL_TYPES = new Map([
     [/\.pptx?$/, 'ppt'],
 ]);
 
-
 function getFileType(link) {
     if(link.querySelector('img')) {
         const iconURL = link.querySelector('img').src;
@@ -49,19 +48,10 @@ function select(link) {
     link.parentNode.querySelector("input").checked = true;
 }
 
-function remove(link) {
+function unSelect(link) {
     link.parentNode.querySelector("input").checked = false;
 }
 
-function genOuterPath(ul) {
-    const outest = ul.parentNode;
-    const nameArr = [];
-    const wrapper = outest.querySelector('.sectionname');
-    if (wrapper) {
-        nameArr.push(wrapper.innerText);
-    }
-    return nameArr;
-}
 
 
 async function findChildFiles(folder) {
@@ -88,12 +78,12 @@ function getLabelName(activity) {
             if(sp.querySelector('span')) {
                 sp = sp.querySelector('span');
             }
-            console.log(sp.innerText);
-            return sp.innerText;
+            console.log(sp.textContent);
+            return sp.textContent;
         }
     } else {
         for (const p of ps) {
-            return p.innerText;
+            return p.textContent;
         }
     }
 }   
@@ -107,105 +97,101 @@ function isLabelValid(activity) {
     // label without P or label with Many Ps are all invalid
 } 
 function getSectionName(ul) {
-    return ul.parentNode.querySelector('h3').innerText;
+    return ul.parentNode.querySelector('h3').textContent;
 }
 
 
-function groupBySectionName(sectionName, activities) {
-    const group = new Map();
-    let state = 'stop';
-    let labelName;
-    let arr = [];
-    let partNum = 1;
-    if (!activities[0].classList.contains('label')) {
-        state = 'progress';
-        labelName = sectionName + ' part_' + partNum;
-    }
-    for(let i = 0; i < activities.length; i++) {
-        const activity = activities[i];
-        if((state === 'stop' || state === 'begin') && activity.classList.contains('label')) {
-            state = 'begin';
-        } else if(state === 'begin' && (activity.classList.contains('resource') || activity.classList.contains('folder'))) {
-            state = 'progress';
-            labelName = sectionName + ' part_' + partNum;
-            arr.push(activity);
-        } else if(state === 'progress' && (activity.classList.contains('resource') || activity.classList.contains('folder'))) {
-            arr.push(activity);
-        } else if(state === 'progress' && activity.classList.contains('label')) {
-            state = 'stop';
-            group.set(labelName, arr);
-            partNum++;
-            arr = [];
-            i--;
-        }
-    }
-    if(state === 'progress') {
-        group.set(labelName, arr);
-    }
-    return group;
-} 
+
 
 function labelNameTooLong(labelName) {
     return labelName.length > 30;
 }
 
 
-function genInnerPath(activity) {
-    const sps = activity.querySelectorAll('span');
-    const innerPath = [];
-    let notSelected = true;
-    console.log(sps);
+
+function genOuterPath(ul) {
+    const outest = ul.parentNode;
+    const nameArr = [];
+    const wrapper = outest.querySelector('.sectionname');
+    if (wrapper) {
+        nameArr.push(wrapper.textContent);
+    }
+    const summary = ul.parentNode.querySelector('.summary');
+    const sps = summary.querySelectorAll('span');
     if (sps.length !== 0) {
         for (const sp of sps) {
             let spWeight=0;
-            if(sp !== null && sp.innerText.trim().length !== 0) {
-                spWeight = machingKeyWords(sp.innerText.trim());
+            if(sp !== null && sp.textContent.trim().length !== 0) {
+                spWeight = machingKeyWords(sp.textContent.trim());
                 if (spWeight > 0) {
-                    innerPath.push(sp.innerText.trim());
-                    if (notSelected) {
-                        const bt = document.createElement('button');
-                        bt.innerText = 'Select All';
-                        sp.appendChild(bt);
-                        notSelected = false;
-                    }
+                    nameArr.push(sp.textContent.trim());
                 }
             }
         }
-        console.log(innerPath);
         // let path = innerPath.join('/');
-        let path = innerPath.reduce(function(acc, val) {
+        let path = nameArr.reduce(function(acc, val) {
             return '/' + val;
         },'');
-        console.log(path);
-        return path;
     }
+    return nameArr;
+}
+
+function genInnerPath(activity) {
+    const innerPath = [];
+    const spans = activity.querySelectorAll('span');
+    const h3 = activity.querySelector('h3');
+    if (spans.length !== 0) {
+        for (const span of spans) {
+            let spanWeight=0;
+            const txt = span.textContent.trim();
+            if(span !== null && txt.length !== 0) {
+                spanWeight = machingKeyWords(txt);
+                if (spanWeight > 0) {
+                    innerPath.push(txt);
+                }
+            }
+        }
+    } else if (h3) {
+        const txt = h3.textContent;
+        innerPath.push(txt);
+    }
+    // let path = innerPath.join('/');
+    let path = innerPath.reduce(function(acc, val) {
+        return '/' + val;
+    },'');
+    return path;
 }
 
 const PROBABLE_NAME = new Map([
-    [/General/, 10],
-    [/Module Information/, 10], 
-    [/Session/, 5], 
-    [/Lectures?/, 10], 
-    [/Seminar/, 10], 
-    [/Notes?/, 10], 
-    [/Slides?/, 10], 
-    [/Paperwork/, 10], 
-    [/Handouts?/, 10], 
-    [/Problem/, 5], 
-    [/Sheets?/, 10], 
-    [/Solutions?/, 5],
-    [/Vocabulary/, 10],
-    [/Pronunciation/, 10], 
-    [/Learning/, 5], 
-    [/Resources?/, 10], 
-    [/Samples?/, 5],
-    [/Examination/, 10],
-    [/Papers?/, 5],
-    [/Solutions?/, 5],
-    [/Final/, 5],
-    [/Exam/, 5],
-    [/\(.*\)/, -50],
-    [/Lecturer/, -50],
+    [/General/gi, 10],
+    [/Module Information/gi, 10], 
+    [/Session/gi, 5], 
+    [/Lectures?/gi, 10], 
+    [/Seminar/gi, 10], 
+    [/Notes?/gi, 10], 
+    [/Slides?/gi, 10], 
+    [/Paperwork/gi, 10], 
+    [/Handouts?/gi, 10], 
+    [/Problem/gi, 5], 
+    [/Sheets?/gi, 10], 
+    [/Solutions?/gi, 5],
+    [/Vocabulary/gi, 10],
+    [/Pronunciation/gi, 10], 
+    [/Learning/gi, 5], 
+    [/Resources?/gi, 10], 
+    [/Samples?/gi, 5],
+    [/Examination/gi, 10],
+    [/Papers?/gi, 5],
+    [/Solutions?/gi, 5],
+    [/Final/gi, 5],
+    [/Exam/gi, 5],
+    [/\(.*\)/gi, -50],
+    [/Lecturer/gi, -50],
+    [/homework/gi, 10],
+    [/exercises/gi, 10],
+    [/lab/gi, 10],
+    [/coursework/gi, 10],
+    [/presentations?/gi, 10],
 ]);
 
 
@@ -221,39 +207,87 @@ function machingKeyWords(text) {
 }
 
 
+function addSelectAllBtn(node, arr) {
+    const btn = document.createElement('button');
+    btn.textContent = 'Select All';
+    btn.classList.add('my-selectAll-btn');
+    node.appendChild(btn);
+    btn.addEventListener('click', () => {
+        console.log(arr);
+    });
+}
+
 
 
 function groupByLabelName(ul) {
     const activities = ul.querySelectorAll('.activity');
-    const group = new Map();
-    let state = 'stop';
-    let innerPath='';
-    let arr = [];
-    for (let i = 0; i < activities.length; i++) {
-        const activity = activities[i];
-        const classes = activity.classList;
-        if ((state === 'stop' || state === 'begin') && classes.contains('label')) {
-            state = 'begin';
+    if (activities.length !== 0) {
+        const group = new Map();
+        const BEGIN = ['Ready', 'Label', 'NoLabel'];
+        const RES = ['Nothing', 'Valid'];
+        const END = ['Not-Stop', 'Stop-Label', 'Stop-NoLabel'];
+        let begin = BEGIN[0];
+        let res = RES[0];
+        let end = END[0];
+        let selectAllBtnPos;
+        let arr = [];
+        const endHandle = (activity) => {
+            if (res === RES[1]) {
+                if (begin === BEGIN[1]) {
+                    addSelectAllBtn(selectAllBtnPos, arr);
+                } else if (begin === BEGIN[2]) {
+                    addSelectAllBtn(activity.parentNode.parentNode.querySelector('.sectionname'), arr);
+                }
+            } 
             innerPath = genInnerPath(activity);
-        } else if (state === 'stop' && (classes.contains('resource') || classes.contains('folder'))) {
-            state = 'progress';
-            arr.push(activity);
-        } else if (state === 'begin' && (classes.contains('resource') || classes.contains('folder'))) {
-            state = 'progress';
-            arr.push(activity);
-        } else if (state === 'progress' && (classes.contains('resource') || classes.contains('folder'))) {
-            arr.push(activity);
-        } else if (state === 'progress' && classes.contains('label')) {
-            state = 'stop';
             group.set(innerPath, arr);
             arr = [];
-            i--;
-        } 
+            begin = BEGIN[0];
+            res = RES[0];
+            end = END[0];
+        };
+        let activity;
+        for (let i = 0; i < activities.length; i++) {
+            activity = activities[i];
+            const classes = activity.classList;
+            if (begin === BEGIN[0]) {
+                if (classes.contains('label')) {
+                    begin = BEGIN[1];
+                    selectAllBtnPos = activity;
+                } else if (classes.contains('resource') || classes.contains('folder')) {
+                    begin = BEGIN[2];
+                    res = RES[1];
+                    arr.push(activity);
+                }
+            } else if (begin === BEGIN[1]) {
+                if (classes.contains('resource') || classes.contains('folder')) {
+                    res = RES[1];
+                    arr.push(activity);
+                } else if (classes.contains('label')) { 
+                    if (res === RES[0]) {
+                        selectAllBtnPos = activity;
+                    } else {
+                        end = END[1];
+                    }
+                }
+            } else {
+                if (classes.contains('resource') || classes.contains('folder')) {
+                    arr.push(activity);
+                } else if (classes.contains('label')) { 
+                    end = END[1];
+                }
+            }
+            if (end === END[1]) {
+                endHandle(activity);
+                i--;
+            }
+        }
+        if(end === END[0]) {
+            end = END[2];
+            endHandle(activity);
+        }
+        return group;
     }
-    if (state === 'progress') {
-        group.set(innerPath, arr);
-    }
-    return group;
 }
 
 function grouping(document) {
@@ -261,7 +295,6 @@ function grouping(document) {
     const sectionGroup = new Map();
     for(const ul of uls) {
         const outerPath = genOuterPath(ul);
-        console.log(outerPath);
         const group = groupByLabelName(ul);
         sectionGroup.set(outerPath, group);
     }
@@ -270,39 +303,41 @@ function grouping(document) {
 }
 
 
+
+
 function showFolder(folderLink) {
     const ul = folderLink.parentNode.querySelector('ul');
     const bt = folderLink.parentNode.querySelector('button');
     ul.style.display = '';
-    bt.innerText = '-';
+    bt.textContent = '-';
 }
 
 function hideFolder(folderLink) {
     const ul = folderLink.parentNode.querySelector('ul');
     const bt = folderLink.parentNode.querySelector('button');
     ul.style.display = 'none';
-    bt.innerText = '+';
+    bt.textContent = '+';
 }
 
 async function folder2Files(folderLink) {
     const ul = await findChildFiles(folderLink);
     const bt = document.createElement('button');
     if(ul) {
-        bt.innerText = '+';
+        bt.textContent = '+';
         folderLink.parentNode.appendChild(bt);
         folderLink.parentNode.appendChild(ul);
         ul.style.display = 'none';
         bt.addEventListener('click', () => {
             if(ul.style.display === '' ) {
                 ul.style.display = 'none';
-                bt.innerText = '+';
+                bt.textContent = '+';
             } else {
                 ul.style.display = '';
-                bt.innerText = '-';
+                bt.textContent = '-';
             }
         });
     } else {
-        bt.innerText = 'NoInnerFile';
+        bt.textContent = 'NoInnerFile';
         folderLink.parentNode.appendChild(bt);
         bt.disabled = true;
         folderLink.parentNode.querySelector('input').disabled = true;
@@ -333,7 +368,7 @@ function enSelectAll(folder) {
             showFolder(folder);
         } else {
             for (const innerLink of linksInFolder) {
-                remove(innerLink);
+                unSelect(innerLink);
             }
             selectedInnerLinkLength = 0;
             hideFolder(folder);
@@ -350,7 +385,7 @@ function enSelectAll(folder) {
             if(selectedInnerLinkLength === InnerLinkLength) {
                 select(folder);
             } else {
-                remove(folder);
+                unSelect(folder);
             }
         });
     }
@@ -367,7 +402,7 @@ async function findLinks(document) {
         const link = folder.querySelector('a');
         enSelectable(link);
         await folder2Files(link);
-        if (link.parentNode.querySelector('button').innerText !== 'NoInnerFile') {
+        if (link.parentNode.querySelector('button').textContent !== 'NoInnerFile') {
             linksInFolder = link.parentNode.querySelectorAll("ul > li > span > a[href^='http://moodle.nottingham.ac.uk/']");
             for (const innerLink of linksInFolder) {
                 enSelectable(innerLink);

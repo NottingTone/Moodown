@@ -18,6 +18,6 @@
 			"http://moodle.nottingham.ac.uk/course/view.php?id=*",
 			"http://moodle.nottingham.ac.uk/mod/folder/view.php?id=*"
 		],
-		"js": ["content.js"],
+		"js": ["content.js"]
 	}]
 }
