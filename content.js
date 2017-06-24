@@ -53,6 +53,17 @@ function remove(link) {
     link.parentNode.querySelector("input").checked = false;
 }
 
+function genOuterPath(ul) {
+    const outest = ul.parentNode;
+    const nameArr = [];
+    const wrapper = outest.querySelector('.sectionname');
+    if (wrapper) {
+        nameArr.push(wrapper.innerText);
+    }
+    return nameArr;
+}
+
+
 async function findChildFiles(folder) {
     try {
         const resp = await fetch(folder.href, {credentials: 'include'});
@@ -138,75 +149,126 @@ function labelNameTooLong(labelName) {
     return labelName.length > 30;
 }
 
-function download(group) {
-    for(const [key, arr] of group) {
-        for(const [innerKey, innerArr] of arr) {
-            for(const tmp of innerArr) {
-                console.log(tmp);
-                const link = tmp.querySelector("a");
-                console.log(link.href);
-                // chrome.downloads.download({
-                //   url: link.href,
-                //   filename: link.innerText,
-                // });
+
+function genInnerPath(activity) {
+    const sps = activity.querySelectorAll('span');
+    const innerPath = [];
+    let notSelected = true;
+    console.log(sps);
+    if (sps.length !== 0) {
+        for (const sp of sps) {
+            let spWeight=0;
+            if(sp !== null && sp.innerText.trim().length !== 0) {
+                spWeight = machingKeyWords(sp.innerText.trim());
+                if (spWeight > 0) {
+                    innerPath.push(sp.innerText.trim());
+                    if (notSelected) {
+                        const bt = document.createElement('button');
+                        bt.innerText = 'Select All';
+                        sp.appendChild(bt);
+                        notSelected = false;
+                    }
+                }
             }
         }
+        console.log(innerPath);
+        // let path = innerPath.join('/');
+        let path = innerPath.reduce(function(acc, val) {
+            return '/' + val;
+        },'');
+        console.log(path);
+        return path;
     }
-   
+}
+
+const PROBABLE_NAME = new Map([
+    [/General/, 10],
+    [/Module Information/, 10], 
+    [/Session/, 5], 
+    [/Lectures?/, 10], 
+    [/Seminar/, 10], 
+    [/Notes?/, 10], 
+    [/Slides?/, 10], 
+    [/Paperwork/, 10], 
+    [/Handouts?/, 10], 
+    [/Problem/, 5], 
+    [/Sheets?/, 10], 
+    [/Solutions?/, 5],
+    [/Vocabulary/, 10],
+    [/Pronunciation/, 10], 
+    [/Learning/, 5], 
+    [/Resources?/, 10], 
+    [/Samples?/, 5],
+    [/Examination/, 10],
+    [/Papers?/, 5],
+    [/Solutions?/, 5],
+    [/Final/, 5],
+    [/Exam/, 5],
+    [/\(.*\)/, -50],
+    [/Lecturer/, -50],
+]);
+
+
+
+function machingKeyWords(text) {
+    let sum = 0;
+    for (const [keyPattern, weight] of PROBABLE_NAME) {
+        if (keyPattern.test(text)) {
+            sum += weight;
+        }
+    }
+    return sum;
 }
 
 
-function groupByLabelName(ul, sectionName) {
+
+
+function groupByLabelName(ul) {
     const activities = ul.querySelectorAll('.activity');
     const group = new Map();
     let state = 'stop';
-    let labelName;
+    let innerPath='';
     let arr = [];
-    if(!activities[0].classList.contains('label')) {
-        return groupBySectionName(sectionName, activities);
-    } else {
-        for(let i = 0; i < activities.length; i++) {
-            const activity = activities[i];
-            if((state === 'stop' || state === 'begin') && activity.classList.contains('label')) {
-                state = 'begin';
-            } else if(state === 'begin' && (activity.classList.contains('resource') || activity.classList.contains('folder'))) {
-                state = 'progress';
-                if(!isLabelValid(activities[i-1])) {
-                    return groupBySectionName(sectionName, activities);
-                } else {
-                    labelName = getLabelName(activities[i-1]);
-                    if (labelNameTooLong(labelName)) {
-                        return groupBySectionName(sectionName, activities);
-                    }
-                    arr.push(activity);
-                }
-            } else if(state === 'progress' && (activity.classList.contains('resource') || activity.classList.contains('folder'))) {
-                arr.push(activity);
-            } else if(state === 'progress' && activity.classList.contains('label')) {
-                state = 'stop';
-                group.set(labelName, arr);
-                arr = [];
-                i--;
-            } 
-        }
-        if(state === 'progress') {
-            group.set(labelName, arr);
-        }
+    for (let i = 0; i < activities.length; i++) {
+        const activity = activities[i];
+        const classes = activity.classList;
+        if ((state === 'stop' || state === 'begin') && classes.contains('label')) {
+            state = 'begin';
+            innerPath = genInnerPath(activity);
+        } else if (state === 'stop' && (classes.contains('resource') || classes.contains('folder'))) {
+            state = 'progress';
+            arr.push(activity);
+        } else if (state === 'begin' && (classes.contains('resource') || classes.contains('folder'))) {
+            state = 'progress';
+            arr.push(activity);
+        } else if (state === 'progress' && (classes.contains('resource') || classes.contains('folder'))) {
+            arr.push(activity);
+        } else if (state === 'progress' && classes.contains('label')) {
+            state = 'stop';
+            group.set(innerPath, arr);
+            arr = [];
+            i--;
+        } 
+    }
+    if (state === 'progress') {
+        group.set(innerPath, arr);
     }
     return group;
 }
 
-function grouping() {
+function grouping(document) {
     const uls = document.querySelectorAll('ul.img-text');
     const sectionGroup = new Map();
-    for(let ul of uls) {
-        const sectionName = getSectionName(ul);
-        // console.log(sectionName);
-        const group = groupByLabelName(ul, sectionName);
-        sectionGroup.set(sectionName, group);
+    for(const ul of uls) {
+        const outerPath = genOuterPath(ul);
+        console.log(outerPath);
+        const group = groupByLabelName(ul);
+        sectionGroup.set(outerPath, group);
     }
+    console.log(sectionGroup);
     return sectionGroup;
 }
+
 
 function showFolder(folderLink) {
     const ul = folderLink.parentNode.querySelector('ul');
@@ -317,4 +379,4 @@ async function findLinks(document) {
 
 findLinks(document);
 
-
+grouping(document);
