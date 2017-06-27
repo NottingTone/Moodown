@@ -1,3 +1,4 @@
+'use strict';
 function isFile(href){
     return href.startsWith('http://moodle.nottingham.ac.uk/');
 }
@@ -18,43 +19,53 @@ function traversal(node) {
 }
 
 
-function chooseFunc(node) {
-    function getNameByUl(ul) {
-        console.log('i am ul');
-        return 'ul';
+function getNameByUl(ul) {
+    let txt = 'ul';
+    if (ul.previousSibling) {
+        txt = ul.previousSibling.textContent;
     }
-    function getNameByLi(li) {
-        console.log('i am li');
-        return 'li';
+    return txt;
+}
+function getNameByLi(li) {
+    let txt = 'li';
+    if (li.classList.contains('section')) {
+        const sectionname = li.querySelector('div.content > .sectionname');
+        if (sectionname) {
+            txt = sectionname.textContent;
+        }
     }
-    function getNameByP(p) {
-        console.log('i am p');
-        return 'p';
-    }
-    function foo() {
-        console.log("fofo");
-        return 'foo';
-    }
+    return txt;
+}
+function getNameByP(p) {
+    console.log('i am p');
+    return 'p';
+}
+function foo() {
+    console.log("fofo");
+    return 'foo';
+}
+
+
+function getNameFunc(node) {
     if (node.nodeType === Node.ELEMENT_NODE) {
         const tag = node.tagName;
         // console.log(tag);
         if (tag === 'UL') {
-            return getNameByUl;
+            return getNameByUl(node);
         } else if (tag === 'LI') {
-            return getNameByLi;
+            return getNameByLi(node);
         } else if (tag === 'P') {
-            return getNameByP;
+            return getNameByP(node);
         } else {
-            return foo;
+            return null;
         }
     }
-    return foo;
+    return null;
 }
 
 
 
 function getNodeName(node) {
-    const getNameFunc = chooseFunc(node);
     return getNameFunc(node);
 }
 
