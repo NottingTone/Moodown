@@ -184,7 +184,7 @@ Vue.component('file-list', {
 			const children = [];
 			const resp = yield fetch(`http://moodle.nottingham.ac.uk/mod/folder/view.php?id=${this.node.id.split('-')[1]}`, { credentials: 'include' });
 			const html = yield resp.text();
-			const main = html.match(/<div id="folder_tree0" class="filemanager"><ul><li>([\s\S]*?)<\/li><\/ul>(?:<\/div>){3}<span/)[1];
+			const main = html.match(/<div id="folder_tree0" class="filemanager"><ul><li>([\s\S]*?)<\/div><div class="box generalbox folderbuttons">/)[1];
 			const node = document.createElement('div');
 			node.innerHTML = main;
 			const folder = parseFolder(node);
