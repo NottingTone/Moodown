@@ -15,8 +15,7 @@
 	},
 	"background": {
 		"scripts": [
-			"background.js",
-			"local-resource.js"
+			"background.js"
 		]
 	},
 	"content_scripts": [{
@@ -31,13 +30,7 @@
 	"permissions": [
 		"tabs",
 		"downloads",
-		"*://moodle.nottingham.ac.uk/*",
-		"https://js-agent.newrelic.com/nr-998.min.js",
-		"webRequest",
-		"webRequestBlocking"
-	],
-	"web_accessible_resources": [
-		"res/*"
+		"*://moodle.nottingham.ac.uk/*"
 	],
 	"content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'"
 }
