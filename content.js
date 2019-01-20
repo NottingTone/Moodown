@@ -28,14 +28,14 @@ const EXTENSION_TYPES = new Map([
 ]);
 
 const TYPE_ICONS = new Map([
-	['pdf', 'http://moodle.nottingham.ac.uk/theme/image.php/nottingham_science/core/1477502187/f/pdf-24'],
-	['doc', 'http://moodle.nottingham.ac.uk/theme/image.php/nottingham_science/core/1477502187/f/document-24'],
-	['slides', 'http://moodle.nottingham.ac.uk/theme/image.php/nottingham_science/core/1477502187/f/powerpoint-24'],
-	['spreadsheet', 'http://moodle.nottingham.ac.uk/theme/image.php/nottingham_science/core/1477502187/f/spreadsheet-24'],
-	['calc', 'http://moodle.nottingham.ac.uk/theme/image.php/nottingham_science/core/1477502187/f/calc-24'],
-	['archive', 'http://moodle.nottingham.ac.uk/theme/image.php/nottingham_science/core/1477502187/f/archive-24'],
-	['other', 'http://moodle.nottingham.ac.uk/theme/image.php/nottingham_science/core/1477502187/f/unknown-24'],
-	['folder', 'http://moodle.nottingham.ac.uk/theme/image.php/nottingham_arts/folder/1457712810/icon'],
+	['pdf', 'https://moodle.nottingham.ac.uk/theme/image.php/nottingham_science/core/1477502187/f/pdf-24'],
+	['doc', 'https://moodle.nottingham.ac.uk/theme/image.php/nottingham_science/core/1477502187/f/document-24'],
+	['slides', 'https://moodle.nottingham.ac.uk/theme/image.php/nottingham_science/core/1477502187/f/powerpoint-24'],
+	['spreadsheet', 'https://moodle.nottingham.ac.uk/theme/image.php/nottingham_science/core/1477502187/f/spreadsheet-24'],
+	['calc', 'https://moodle.nottingham.ac.uk/theme/image.php/nottingham_science/core/1477502187/f/calc-24'],
+	['archive', 'https://moodle.nottingham.ac.uk/theme/image.php/nottingham_science/core/1477502187/f/archive-24'],
+	['other', 'https://moodle.nottingham.ac.uk/theme/image.php/nottingham_science/core/1477502187/f/unknown-24'],
+	['folder', 'https://moodle.nottingham.ac.uk/theme/image.php/nottingham_arts/folder/1457712810/icon'],
 ]);
 
 function getFiletypeByIcon(icon) {
@@ -190,7 +190,7 @@ function cleanData(data) {
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 	if (request === 'requestData') {
 
-		const module = document.getElementById('course-header').textContent.trim();
+		const module = document.querySelector('.page-heading').textContent.trim();
 		const data = {
 			type: 'root',
 			name: module,
@@ -206,7 +206,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 			const activities = content.querySelectorAll('.activity,a[href]');
 			for (let activity of activities) {
 				if (activity.tagName === 'A') {
-					if (activity.href.startsWith('http://moodle.nottingham.ac.uk/pluginfile.php/')) {
+					if (activity.href.startsWith('https://moodle.nottingham.ac.uk/pluginfile.php/')) {
 						const file = createFileObjByUrl(activity.href, activity.textContent.trim().replace(/\s+/g, ' '));
 						currentDir.children.push(file);
 					}

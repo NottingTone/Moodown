@@ -115,7 +115,7 @@ new Vue({
 		chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
 			let currentTab = tabs[0];
 			let match;
-			if (match = currentTab.url.match(/^http:\/\/moodle.nottingham.ac.uk\/mod\/folder\/view\.php\?id=(\d+)$/)) {
+			if (match = currentTab.url.match(/^https:\/\/moodle.nottingham.ac.uk\/mod\/folder\/view\.php\?id=(\d+)$/)) {
 				this.tree = {
 					type: 'root',
 					fetched: false,
@@ -125,7 +125,7 @@ new Vue({
 				Vue.nextTick(() => {
 					this.$refs.fileList.fetch();
 				});
-			} else if (currentTab.url.startsWith('http://moodle.nottingham.ac.uk/course/view.php?id=')) {
+			} else if (currentTab.url.startsWith('https://moodle.nottingham.ac.uk/course/view.php?id=')) {
 				this.startLoading();
 				chrome.tabs.sendMessage(tabs[0].id, 'requestData', (response) => {
 					this.tree = response;

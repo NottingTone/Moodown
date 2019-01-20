@@ -1,7 +1,7 @@
 {
 	"manifest_version": 2,
 	"name": "Moodown",
-	"version": "0.1.0",
+	"version": "0.1.1",
 	"description": "A batch downloader for moodle.nottingham.ac.uk",
 	"icons": {
 		"32": "icon32.png"
@@ -20,8 +20,8 @@
 	},
 	"content_scripts": [{
 		"matches": [
-			"http://moodle.nottingham.ac.uk/course/view.php?id=*",
-			"http://moodle.nottingham.ac.uk/mod/folder/view.php?id=*"
+			"*://moodle.nottingham.ac.uk/course/view.php?id=*",
+			"*://moodle.nottingham.ac.uk/mod/folder/view.php?id=*"
 		],
 		"js": [
 			"content.js"

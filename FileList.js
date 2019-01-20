@@ -42,6 +42,7 @@ function getFiletypeByExtension(extension) {
 
 function safeFilename(filename) {
 	return filename
+		.trim()
 		.replace(/\s+/g, ' ')
 		.replace(/[\\\/\0<>:"\|\?\*]+/g, '_');
 }
@@ -182,7 +183,7 @@ Vue.component('file-list', {
 		fetch: co.wrap(function*() {
 			this.$root.startLoading();
 			const children = [];
-			const resp = yield fetch(`http://moodle.nottingham.ac.uk/mod/folder/view.php?id=${this.node.id.split('-')[1]}`, { credentials: 'include' });
+			const resp = yield fetch(`https://moodle.nottingham.ac.uk/mod/folder/view.php?id=${this.node.id.split('-')[1]}`, { credentials: 'include' });
 			const html = yield resp.text();
 			const main = html.match(/<div id="folder_tree0" class="filemanager"><ul><li>([\s\S]*?)<\/div><div class="box generalbox folderbuttons">/)[1];
 			const node = document.createElement('div');
@@ -206,7 +207,7 @@ Vue.component('file-list', {
 					if (!this.node.url) {
 						yield this.getUrl();
 					}
-					yield chromeDownload(this.node.url, path, this.node.name);
+					yield chromeDownload(this.node.url, path, safeFilename(this.node.name));
 					this.$root.addDownloaded(1);
 				}
 			} else {
@@ -220,17 +221,17 @@ Vue.component('file-list', {
 			let url, resp;
 			switch (type) {
 			case 'resource':
-				url = `http://moodle.nottingham.ac.uk/mod/resource/view.php?id=${id}`;
+				url = `https://moodle.nottingham.ac.uk/mod/resource/view.php?id=${id}`;
 				resp = yield fetch(url, {
 					method: 'HEAD',
 					credentials: 'include',
 				});
-				if (resp.url.startsWith('http://moodle.nottingham.ac.uk/pluginfile.php')) {
+				if (resp.url.startsWith('https://moodle.nottingham.ac.uk/pluginfile.php')) {
 					this.node.url = resp.url;
 				} else if (resp.url === url) {
 					const resp = yield fetch(url, { credentials: 'include' });
 					const text = yield resp.text();
-					const match = text.match(/Click <a href="(http:\/\/moodle.nottingham.ac.uk\/pluginfile.php.*?)"[\s\S]*?<\/a> link to view the file/);
+					const match = text.match(/Click <a href="(https:\/\/moodle.nottingham.ac.uk\/pluginfile.php.*?)"[\s\S]*?<\/a> link to view the file/);
 					if (match) {
 						this.node.url = match[1];
 					} else {
@@ -241,7 +242,7 @@ Vue.component('file-list', {
 				}
 				break;
 			case 'equella':
-				url = `http://moodle.nottingham.ac.uk/mod/equella/view.php?id=${id}`;
+				url = `https://moodle.nottingham.ac.uk/mod/equella/view.php?id=${id}`;
 				resp = yield fetch(url, {
 					method: 'HEAD',
 					credentials: 'include',
